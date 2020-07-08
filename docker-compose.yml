@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  validator:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: validator
+    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
+    volumes:
+      - ../services/validator:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
+
+  wallet:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: wallet
+    volumes:
+      - ../services/wallet:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
+
+  writer-api:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: writer-api
+    volumes:
+      - ../services/writer-api:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
