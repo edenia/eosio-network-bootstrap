@@ -31,3 +31,12 @@ services:
     volumes:
       - ../services/writer-api:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
+
+  vault:
+    image: vault:1.4.3
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_LOCAL_CONFIG: ${VAULT_LOCAL_CONFIG}
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
