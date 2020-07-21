@@ -7,6 +7,9 @@ services:
       context: ../
       dockerfile: ./Dockerfile
     container_name: validator
+    environment:
+      - EOS_PUB_KEY
+      - EOS_PRIV_KEY
     # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
     volumes:
       - ../services/validator:/opt/application
@@ -36,7 +39,15 @@ services:
     image: vault:1.4.3
     ports:
       - "8200:8200"
+    container_name: vault
+    volumes:
+      - /tmp/vault/file:/vault/file:rw
+      - ../services/vault/config:/vault/config:rw
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json
     environment:
-      VAULT_LOCAL_CONFIG: ${VAULT_LOCAL_CONFIG}
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
-      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_API_ADDR: http://0.0.0.0:8200/
+      # VAULT_LOCAL_CONFIG: ${VAULT_LOCAL_CONFIG}
+      # VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
+      # VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200

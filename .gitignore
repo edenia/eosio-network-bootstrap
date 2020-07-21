@@ -28,5 +28,11 @@ override.tf.json
 *.retry
 hosts
 
+# blockchain mounts
+biosboot/
+protocol_features/
+secrets/
+
+
 # Local env
 .env
