@@ -33,6 +33,9 @@ biosboot/
 protocol_features/
 secrets/
 
+# vault
+vault_keys.json
+
 
 # Local env
 .env
