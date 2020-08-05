@@ -2,8 +2,6 @@
 
 set -e;
 
-source $(dirname $0)/utils/bios.sh
-
 mkdir -p $CONFIG_DIR
 
 cp $WORK_DIR/config.ini $CONFIG_DIR/config.ini

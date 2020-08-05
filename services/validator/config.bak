@@ -1,0 +1,26 @@
+# Print out contracts
+contracts-console = true
+
+# As well as API and HTTP plugins
+plugin = eosio::chain_api_plugin
+plugin = eosio::http_plugin
+# http config
+http-server-address = 0.0.0.0:8888
+http-validate-host=false
+access-control-allow-origin = *
+# Enable verbose error logging, lending aid to dapp development
+verbose-http-errors=true
+
+# Load the block producer plugin, so you can produce blocks
+plugin = eosio::producer_plugin
+# Prevent error when deploying system contracts https://git.io/fpKc8
+max-transaction-time = 100000
+# Enable block production, even if the chain is stale. (eosio::producer_plugin)
+enable-stale-production = true # since a single-node test chain is pretty much always stale
+# Producer name
+producer-name = eosio
+
+# Load the net plugin
+plugin = eosio::net_plugin
+# The name supplied to identify this node amongst the peers. (eosio::net_plugin)
+agent-name = "Chain Producer"
