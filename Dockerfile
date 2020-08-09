@@ -21,7 +21,13 @@ RUN apt-get install -y /eosio.deb
 
 RUN apt-get install -y /eosio-cdt-v1.7.0.deb \
   && git clone https://github.com/eoscostarica/eosio.contracts.git /opt/eosio.contracts \
-  && cd /opt/eosio.contracts && git checkout eosio.private \
+  && cd /opt/eosio.contracts && git checkout release/1.9.x \
+  && rm -fr build \
+  && mkdir build  \
+  && cd build \
+  && cmake .. \
+  && make -j$(sysctl -n hw.ncpu) \
+  && cd .. \
   && ./build.sh -e /usr/opt/eosio/2.0.7 -c /usr/opt/eosio.cdt/1.7.0 -y
 
 # Remove all of the unnecesary files and apt cache

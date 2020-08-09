@@ -12,91 +12,88 @@ services:
       - EOS_PRIV_KEY
     # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
     volumes:
-      - ../services/validator:/opt/application
+      - ../services/bios:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
-  validator:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: validator
-    environment:
-      - EOS_PUB_KEY
-      - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
-    volumes:
-      - ../services/validator:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-    depends_on:
-      - "bios"
-
-  validator2:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: validator2
-    environment:
-      - EOS_PUB_KEY
-      - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
-    volumes:
-      - ../services/validator2:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-    depends_on:
-      - "bios"
-
-  validator3:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: validator3
-    environment:
-      - EOS_PUB_KEY
-      - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
-    volumes:
-      - ../services/validator3:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-    depends_on:
-      - "bios"
-
-  wallet:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: wallet
-    volumes:
-      - ../services/wallet:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-
-  api-node:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: api-node
-    volumes:
-      - ../services/api-node:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-    depends_on:
-      - "bios"
-
-  vault:
-    image: vault:1.4.3
-    ports:
-      - "8200:8200"
-    container_name: vault
-    volumes:
-      - /tmp/vault/file:/vault/file:rw
-      - ../services/vault/config:/vault/config:rw
-    cap_add:
-      - IPC_LOCK
-    entrypoint: vault server -config=/vault/config/vault.json
-    environment:
-      VAULT_API_ADDR: http://0.0.0.0:8200/
-      # VAULT_LOCAL_CONFIG: ${VAULT_LOCAL_CONFIG}
-      # VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
-      # VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+  # validator:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: validator
+  #   environment:
+  #     - EOS_PUB_KEY
+  #     - EOS_PRIV_KEY
+  #   # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
+  #   volumes:
+  #     - ../services/validator:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  #   depends_on:
+  #     - "bios"
+  # validator2:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: validator2
+  #   environment:
+  #     - EOS_PUB_KEY
+  #     - EOS_PRIV_KEY
+  #   # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
+  #   volumes:
+  #     - ../services/validator2:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  #   depends_on:
+  #     - "bios"
+  # validator3:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: validator3
+  #   environment:
+  #     - EOS_PUB_KEY
+  #     - EOS_PRIV_KEY
+  #   # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
+  #   volumes:
+  #     - ../services/validator3:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  #   depends_on:
+  #     - "bios"
+  # wallet:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: wallet
+  #   volumes:
+  #     - ../services/wallet:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  # api-node:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: api-node
+  #   volumes:
+  #     - ../services/api-node:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  #   depends_on:
+  #     - "validator"
+  #     - "validator2"
+  #     - "validator3"
+  # vault:
+  #   image: vault:1.4.3
+  #   ports:
+  #     - "8200:8200"
+  #   container_name: vault
+  #   volumes:
+  #     - /tmp/vault/file:/vault/file:rw
+  #     - ../services/vault/config:/vault/config:rw
+  #   cap_add:
+  #     - IPC_LOCK
+  #   entrypoint: vault server -config=/vault/config/vault.json
+  #   environment:
+  #     VAULT_API_ADDR: http://0.0.0.0:8200/
+  #     # VAULT_LOCAL_CONFIG: ${VAULT_LOCAL_CONFIG}
+  #     # VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
+  #     # VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200

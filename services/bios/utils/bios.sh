@@ -100,7 +100,7 @@ deploy_system_contracts() {
   while [ "$result" -ne "0" ]; do
     echo "Setting eosio.bios contract...";
     cleos set contract eosio \
-      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.bios/ \
+      $EOSIO_CONTRACTS_DIRECTORY/eosio.bios/ \
       -x 1000;
     result=$?
     [[ "$result" -ne "0" ]] && echo "Failed, trying again";
