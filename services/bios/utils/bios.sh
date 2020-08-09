@@ -2,7 +2,6 @@
 
 set -e;
 
-EOSIO_OLD_CONTRACTS_DIRECTORY=/opt/old-eosio.contracts/build/contracts
 EOSIO_CONTRACTS_DIRECTORY=/opt/eosio.contracts/build/contracts
 
 store_secret_on_vault() {
@@ -27,16 +26,8 @@ create_wallet() {
 
 create_system_accounts() {
   system_accounts=( \
-    "eosio.bpay" \
     "eosio.msig" \
-    "eosio.names" \
-    "eosio.ram" \
-    "eosio.ramfee" \
-    "eosio.saving" \
-    "eosio.stake" \
     "eosio.token" \
-    "eosio.vpay" \
-    "eosio.rex" \
   )
 
   for account in "${system_accounts[@]}"; do
@@ -90,15 +81,6 @@ activate_features() {
   cleos push action eosio activate '["299dcb6af692324b899b39f16d5a530a33062804e41f09dc97e9f156b4476707"]' -p eosio
 }
 
-create_and_issue_sys_tokens() {
-  cleos push action \
-    eosio.token create \
-    '[ "eosio", "10000000000.0000 SYS" ]' -p eosio.token@active
-  cleos push action \
-    eosio.token issue \
-    '[ "eosio", "1000000000.0000 SYS", "memo" ]' -p eosio@active
-}
-
 deploy_system_contracts() {
   # Deploy eosio.token
   cleos set contract eosio.token $EOSIO_CONTRACTS_DIRECTORY/eosio.token/
@@ -107,20 +89,18 @@ deploy_system_contracts() {
   cleos set contract eosio.msig $EOSIO_CONTRACTS_DIRECTORY/eosio.msig/
   sleep 2;
 
-  create_and_issue_sys_tokens
-  sleep 2;
-
   curl --request POST \
     --url http://127.0.0.1:8888/v1/producer/schedule_protocol_feature_activations \
     -d '{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}'
   sleep 2;
 
+  ## Set eosio.bios system contract
   result=1
   set +e;
   while [ "$result" -ne "0" ]; do
-    echo "Setting old eosio.system contract...";
+    echo "Setting eosio.bios contract...";
     cleos set contract eosio \
-      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.system/ \
+      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.bios/ \
       -x 1000;
     result=$?
     [[ "$result" -ne "0" ]] && echo "Failed, trying again";
@@ -129,18 +109,6 @@ deploy_system_contracts() {
 
   activate_features
 
-  set +e;
-  result=1;
-  while [ "$result" -ne "0" ]; do
-    echo "Setting latest eosio.system contract...";
-    cleos set contract eosio \
-      $EOSIO_CONTRACTS_DIRECTORY/eosio.system/ \
-      -p eosio \
-      -x 1000;
-    result=$?
-    [[ "$result" -ne "0" ]] && echo "Failed, trying again";
-  done
-  set -e;
 }
 
 set_msig_privileged_account() {

@@ -1,7 +1,7 @@
 FROM ubuntu:18.04 as base-stage
 
 ENV WORK_DIR /opt/application
-ENV EOSIO_PACKAGE_URL https://github.com/EOSIO/eos/releases/download/v2.0.5/eosio_2.0.5-1-ubuntu-18.04_amd64.deb
+ENV EOSIO_PACKAGE_URL https://github.com/eosio/eos/releases/download/v2.0.7/eosio_2.0.7-1-ubuntu-18.04_amd64.deb
 ENV EOSIO_CDT_OLD_URL https://github.com/eosio/eosio.cdt/releases/download/v1.6.3/eosio.cdt_1.6.3-1-ubuntu-18.04_amd64.deb
 ENV EOSIO_CDT_URL https://github.com/EOSIO/eosio.cdt/releases/download/v1.7.0/eosio.cdt_1.7.0-1-ubuntu-18.04_amd64.deb
 
@@ -19,15 +19,10 @@ RUN wget -O /eosio.deb $EOSIO_PACKAGE_URL \
 # hadolint ignore=DL3008,DL3015
 RUN apt-get install -y /eosio.deb
 
-RUN apt-get install -y /eosio-cdt-v1.6.3.deb \
-  && git clone https://github.com/EOSIO/eosio.contracts.git /opt/old-eosio.contracts \
-  && cd /opt/old-eosio.contracts && git checkout release/1.8.x \
-  && ./build.sh -e /usr/opt/eosio/2.0.5 -c /usr/opt/eosio.cdt/1.6.3 -y
-
 RUN apt-get install -y /eosio-cdt-v1.7.0.deb \
-  && git clone https://github.com/EOSIO/eosio.contracts.git /opt/eosio.contracts \
-  && cd /opt/eosio.contracts && git checkout release/1.9.x \
-  && ./build.sh -e /usr/opt/eosio/2.0.5 -c /usr/opt/eosio.cdt/1.7.0 -y
+  && git clone https://github.com/eoscostarica/eosio.contracts.git /opt/eosio.contracts \
+  && cd /opt/eosio.contracts && git checkout eosio.private \
+  && ./build.sh -e /usr/opt/eosio/2.0.7 -c /usr/opt/eosio.cdt/1.7.0 -y
 
 # Remove all of the unnecesary files and apt cache
 RUN rm -Rf /eosio*.deb \
