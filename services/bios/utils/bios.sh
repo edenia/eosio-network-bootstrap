@@ -2,6 +2,7 @@
 
 set -e;
 
+EOSIO_OLD_CONTRACTS_DIRECTORY=/opt/old-eosio.contracts/build/contracts
 EOSIO_CONTRACTS_DIRECTORY=/opt/eosio.contracts/build/contracts
 
 store_secret_on_vault() {
@@ -79,14 +80,18 @@ activate_features() {
 
   # WTMSIG_BLOCK_SIGNATURES
   cleos push action eosio activate '["299dcb6af692324b899b39f16d5a530a33062804e41f09dc97e9f156b4476707"]' -p eosio
+
+  sleep 2;
 }
 
 deploy_system_contracts() {
-  # Deploy eosio.token
   cleos set contract eosio.token $EOSIO_CONTRACTS_DIRECTORY/eosio.token/
   sleep 2;
 
   cleos set contract eosio.msig $EOSIO_CONTRACTS_DIRECTORY/eosio.msig/
+  sleep 2;
+
+  cleos set contract eosio.msig $EOSIO_CONTRACTS_DIRECTORY/eosio.wrap/
   sleep 2;
 
   curl --request POST \
@@ -94,13 +99,12 @@ deploy_system_contracts() {
     -d '{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}'
   sleep 2;
 
-  ## Set eosio.bios system contract
   result=1
   set +e;
   while [ "$result" -ne "0" ]; do
-    echo "Setting eosio.bios contract...";
+    echo "Setting old eosio.bios contract...";
     cleos set contract eosio \
-      $EOSIO_CONTRACTS_DIRECTORY/eosio.bios/ \
+      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.bios/ \
       -x 1000;
     result=$?
     [[ "$result" -ne "0" ]] && echo "Failed, trying again";
@@ -109,16 +113,23 @@ deploy_system_contracts() {
 
   activate_features
 
+  set +e;
+  result=1;
+  while [ "$result" -ne "0" ]; do
+    echo "Setting latest eosio.bios contract...";
+    cleos set contract eosio \
+      $EOSIO_CONTRACTS_DIRECTORY/eosio.bios/ \
+      -p eosio \
+      -x 1000;
+    result=$?
+    [[ "$result" -ne "0" ]] && echo "Failed, trying again";
+  done
+  set -e;
 }
 
 set_msig_privileged_account() {
   cleos push action eosio setpriv \
     '["eosio.msig", 1]' -p eosio@active
-}
-
-init_system_account() {
-  cleos push action eosio init \
-    '["0", "4,SYS"]' -p eosio@active
 }
 
 run_bios() {

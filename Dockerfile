@@ -19,6 +19,17 @@ RUN wget -O /eosio.deb $EOSIO_PACKAGE_URL \
 # hadolint ignore=DL3008,DL3015
 RUN apt-get install -y /eosio.deb
 
+RUN apt-get install -y /eosio-cdt-v1.6.3.deb \
+  && git clone https://github.com/EOSIO/eosio.contracts.git /opt/old-eosio.contracts \
+  && cd /opt/old-eosio.contracts && git checkout release/1.8.x \
+  && rm -fr build \
+  && mkdir build  \
+  && cd build \
+  && cmake .. \
+  && make -j$(sysctl -n hw.ncpu) \
+  && cd .. \
+  && ./build.sh -e /usr/opt/eosio/2.0.5 -c /usr/opt/eosio.cdt/1.6.3 -y
+
 RUN apt-get install -y /eosio-cdt-v1.7.0.deb \
   && git clone https://github.com/eoscostarica/eosio.contracts.git /opt/eosio.contracts \
   && cd /opt/eosio.contracts && git checkout release/1.9.x \
