@@ -36,10 +36,7 @@ bios_nodeos=$"nodeos \
   --contracts-console \
   --http-validate-host=false \
   --verbose-http-errors \
-  --enable-stale-production \
-  --p2p-peer-address localhost:9011 \
-  --p2p-peer-address localhost:9012 \
-  --p2p-peer-address localhost:9013";
+  --enable-stale-production ";
 
 # nodeos=$"nodeos \
 #   --config-dir $CONFIG_DIR \
@@ -64,10 +61,7 @@ nodeos=$"nodeos \
   --contracts-console \
   --http-validate-host=false \
   --verbose-http-errors \
-  --enable-stale-production \
-  --p2p-peer-address localhost:9011 \
-  --p2p-peer-address localhost:9012 \
-  --p2p-peer-address localhost:9013";
+  --enable-stale-production" ;
 
 p2p_peers=( \
   "validator" \

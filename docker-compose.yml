@@ -14,18 +14,20 @@ services:
     volumes:
       - ../services/bios:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
-  validator:
+    ports:
+      - "9876:9010"
+  validator1:
     build:
       target: local-stage
       context: ../
       dockerfile: ./Dockerfile
-    container_name: validator
+    container_name: validator1
     environment:
       - EOS_PUB_KEY
       - EOS_PRIV_KEY
     # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
     volumes:
-      - ../services/validator:/opt/application
+      - ../services/validator1:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
     depends_on:
       - "bios"
@@ -78,7 +80,7 @@ services:
       - ../services/api-node:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
     depends_on:
-      - "validator"
+      - "validator1"
       - "validator2"
       - "validator3"
   vault:

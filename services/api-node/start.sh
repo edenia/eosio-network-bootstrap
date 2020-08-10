@@ -10,8 +10,8 @@ nodeos=$"nodeos \
   -e";
 
 p2p_peers=( \
-  "validator" \
-  "writer-api" \
+  "bios" \
+  "api-node" \
 )
 
 # Add all of the p2p peers excluding itself as a peer
