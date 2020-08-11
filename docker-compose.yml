@@ -16,15 +16,6 @@ services:
     depends_on:
       - "vault"
       - "wallet"
-  api-node:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: api-node
-    volumes:
-      - ../services/api-node:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
   # validator1:
   #   build:
   #     target: local-stage
@@ -63,6 +54,24 @@ services:
   #   volumes:
   #     - ../services/validator3:/opt/application
   #   image: ${IMAGE_NAME}:${VERSION}
+  seed:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: seed
+    volumes:
+      - ../services/seed:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
+  api-node:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: api-node
+    volumes:
+      - ../services/api-node:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
   wallet:
     build:
       target: local-stage

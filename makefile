@@ -33,7 +33,7 @@ endif
 	done
 
 logs:
-		@docker-compose -f $(BUILDS_DIR)/docker-compose.yml logs -f bios
+	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml logs -f bios
 
 stop: ##@local Stop all instances of the currently running services
 	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml stop

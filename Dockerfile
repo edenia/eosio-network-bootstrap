@@ -31,7 +31,7 @@ RUN apt-get install -y /eosio-cdt-v1.7.0.deb \
   && cmake .. \
   && make -j$(sysctl -n hw.ncpu)
 
-# Remove all of the unnecesary files and apt cache
+# Remove all of the unnecessary files and apt cache
 RUN rm -Rf /eosio*.deb \
   && apt-get remove -y wget \
   && apt-get clean \
@@ -45,7 +45,7 @@ WORKDIR $WORK_DIR
 FROM base-stage as prod-stage
 
 ENV WORK_DIR /opt/application
-# Deifne Environment params used by start.sh
+# Define Environment params used by start.sh
 ENV DATA_DIR /root/data-dir
 ENV CONFIG_DIR $DATA_DIR/config
 ENV BACKUPS_DIR /root/backups
@@ -60,12 +60,11 @@ FROM base-stage as local-stage
 
 ENV WORK_DIR /opt/application
 
-# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq curl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Deifne Environment params used by start.sh
+# Define Environment params used by start.sh
 ENV DATA_DIR /root/data-dir
 ENV CONFIG_DIR $DATA_DIR/config
 ENV BACKUPS_DIR /root/backups
