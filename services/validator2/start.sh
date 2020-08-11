@@ -1,22 +1,19 @@
 #!/usr/bin/env bash
+echo "Starting VALIDATOR Node...";
 set -e;
+ulimit -n 65535
+ulimit -s 64000
 
-echo "Starting EOSIO service ..."
-pid=0
+mkdir -p $CONFIG_DIR
+cp $WORK_DIR/config.ini $CONFIG_DIR/config.ini
+
+pid=0;
 
 nodeos=$"nodeos \
   --config-dir $CONFIG_DIR \
   --data-dir $DATA_DIR \
-  -e";
-
-p2p_peers=( \
-  "bios" \
-  "api-node" \
-)
-
-for peer in "${p2p_peers[@]}"; do
-  nodeos="$nodeos --p2p-peer-address=$peer:9876";
-done
+  --blocks-dir $DATA_DIR/blocks \
+  --signature-provider $EOS_PUB_KEY=KEY:$EOS_PRIV_KEY" ;
 
 term_handler() {
   if [ $pid -ne 0 ]; then
@@ -27,22 +24,25 @@ term_handler() {
 }
 
 start_nodeos() {
-    # check if we're dealing with a brand new instance
-    if [ ! -d $DATA_DIR/blocks ]; then
-      $nodeos --delete-all-blocks --genesis-json $WORK_DIR/genesis.json &
-    elif [ -d $DATA_DIR/blocks ]; then
-      $nodeos &
-    fi
-    sleep 10;
-
+  $nodeos &
+  sleep 10;
   if [ -z "$(pidof nodeos)" ]; then
-      $nodeos --hard-replay-blockchain &
+    $nodeos --hard-replay-blockchain &
   fi
+}
+
+start_fresh_nodeos() {
+  echo 'Starting new chain from genesis JSON'
+  $nodeos --delete-all-blocks --genesis-json $WORK_DIR/genesis.json &
 }
 
 trap 'echo "Shutdown of EOSIO service...";kill ${!}; term_handler' 2 15;
 
-start_nodeos
+if [ ! -d $DATA_DIR/blocks ]; then
+  start_fresh_nodeos &
+elif [ -d $DATA_DIR/blocks ]; then
+  start_nodeos &
+fi
 
 pid="$(pidof nodeos)"
 

@@ -29,6 +29,9 @@ create_system_accounts() {
   system_accounts=( \
     "eosio.msig" \
     "eosio.token" \
+    "validator1" \
+    "validator2" \
+    "validator3" \
   )
 
   for account in "${system_accounts[@]}"; do
