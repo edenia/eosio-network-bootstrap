@@ -133,6 +133,7 @@ set_msig_privileged_account() {
 }
 
 run_bios() {
+  echo 'Initializing BIOS sequence...'
   create_wallet
   create_system_accounts
   deploy_system_contracts

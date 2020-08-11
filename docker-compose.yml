@@ -10,66 +10,12 @@ services:
     environment:
       - EOS_PUB_KEY
       - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
     volumes:
       - ../services/bios:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
-    ports:
-      - "9876:9010"
-  validator1:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: validator1
-    environment:
-      - EOS_PUB_KEY
-      - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
-    volumes:
-      - ../services/validator1:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
     depends_on:
-      - "bios"
-  validator2:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: validator2
-    environment:
-      - EOS_PUB_KEY
-      - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
-    volumes:
-      - ../services/validator2:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-    depends_on:
-      - "bios"
-  validator3:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: validator3
-    environment:
-      - EOS_PUB_KEY
-      - EOS_PRIV_KEY
-    # entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
-    volumes:
-      - ../services/validator3:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
-    depends_on:
-      - "bios"
-  wallet:
-    build:
-      target: local-stage
-      context: ../
-      dockerfile: ./Dockerfile
-    container_name: wallet
-    volumes:
-      - ../services/wallet:/opt/application
-    image: ${IMAGE_NAME}:${VERSION}
+      - "vault"
+      - "wallet"
   api-node:
     build:
       target: local-stage
@@ -79,10 +25,55 @@ services:
     volumes:
       - ../services/api-node:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
+  # validator1:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: validator1
+  #   environment:
+  #     - EOS_PUB_KEY
+  #     - EOS_PRIV_KEY
+  #   volumes:
+  #     - ../services/validator1:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  #   #entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
+  #   #command: ["./wait-for-it.sh", "db:5432", "--", "python", "app.py"]
+  # validator2:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: validator2
+  #   environment:
+  #     - EOS_PUB_KEY
+  #     - EOS_PRIV_KEY
+  #   volumes:
+  #     - ../services/validator2:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  # validator3:
+  #   build:
+  #     target: local-stage
+  #     context: ../
+  #     dockerfile: ./Dockerfile
+  #   container_name: validator3
+  #   environment:
+  #     - EOS_PUB_KEY
+  #     - EOS_PRIV_KEY
+  #   volumes:
+  #     - ../services/validator3:/opt/application
+  #   image: ${IMAGE_NAME}:${VERSION}
+  wallet:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: wallet
+    volumes:
+      - ../services/wallet:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
     depends_on:
-      - "validator1"
-      - "validator2"
-      - "validator3"
+      - "vault"
   vault:
     image: vault:1.4.3
     ports:

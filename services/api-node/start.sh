@@ -1,31 +1,19 @@
 #!/usr/bin/env bash
+
 set -e;
 
-echo "Starting EOSIO service ..."
-pid=0
+mkdir -p $CONFIG_DIR
+
+cp $WORK_DIR/config.ini $CONFIG_DIR/config.ini
+
+echo "Starting EOSIO service ...";
+pid=0;
 
 nodeos=$"nodeos \
-  --config-dir $CONFIG_DIR \
+  --signature-provider $EOS_PUB_KEY=KEY:$EOS_PRIV_KEY \
   --data-dir $DATA_DIR \
-  -e";
-
-p2p_peers=( \
-  "bios" \
-  "api-node" \
-)
-
-# Add all of the p2p peers excluding itself as a peer
-for peer in "${p2p_peers[@]}"; do
-  # nodes=( \
-  #   "$peer-0" \
-  #   "$peer-1" \
-  # )
-  # for node in "${nodes[@]}"; do
-  #   [ "$node" != "$(hostname)" ] \
-  #     && nodeos="$nodeos --p2p-peer-address=$node.$peer:9876";
-  # done
-  nodeos="$nodeos --p2p-peer-address=$peer:9876";
-done
+  --blocks-dir $DATA_DIR/blocks \
+  --config-dir $CONFIG_DIR";
 
 term_handler() {
   if [ $pid -ne 0 ]; then
@@ -35,40 +23,24 @@ term_handler() {
   exit 0;
 }
 
-recover_backups() {
-  rm -Rf $DATA_DIR/blocks $DATA_DIR/state
-  blocks_file="$(ls -t $BACKUPS_DIR/blocks*.tar.gz | head -1)";
-  state_file="$(ls -t $BACKUPS_DIR/state*.tar.gz | head -1)";
-  tar -xzf $blocks_file -C $DATA_DIR;
-  tar -xzf $state_file -C $DATA_DIR;
-}
-
 start_nodeos() {
-  # check if we're dealing with a brand new instance
-  # if [ -d $BACKUPS_DIR ] && [ ! -d $DATA_DIR/blocks ]; then
-  #   recover_backups
-  #   $nodeos &
-  # elif [ -d $DATA_DIR/blocks ]; then
-    $nodeos &
-  # fi
+  $nodeos &
 
   sleep 10;
 
   if [ -z "$(pidof nodeos)" ]; then
-    # if [ -d $BACKUPS_DIR ]; then
-    #   recover_backups
-    #   $nodeos &
-    # else
-      $nodeos --hard-replay-blockchain &
-    # fi
+
+    $nodeos --hard-replay-blockchain &
+
   fi
 }
 
 trap 'echo "Terminating EOSIO service...";kill ${!}; term_handler' 2 15;
 
-start_nodeos
-
 pid="$(pidof nodeos)"
+
+validator_hostname="$(hostname)"
+set -e;
 
 while true
 do
