@@ -132,6 +132,53 @@ set_msig_privileged_account() {
     '["eosio.msig", 1]' -p eosio@active
 }
 
+create_producer_accounts() {
+  # TODO: @danazkari this needs to be in json
+  # and in an env variable so that it can be configured
+  producer_accounts=( \
+    "baas1.uno" \
+    "baas1.dos" \
+    "baas1.tres" \
+    "baas1.cuatro" \
+    "baas1.cinco" \
+    "baas1.seis" \
+    "baas1.siete" \
+    "baas2.uno" \
+    "baas2.dos" \
+    "baas2.tres" \
+    "baas2.cuatro" \
+    "baas2.cinco" \
+    "baas2.seis" \
+    "baas2.siete" \
+    "baas3.uno" \
+    "baas3.dos" \
+    "baas3.tres" \
+    "baas3.cuatro" \
+    "baas3.cinco" \
+    "baas3.seis" \
+    "baas3.siete" \
+  );
+
+  for account in "${producer_accounts[@]}"; do
+    echo "Creating producer account '$account'";
+
+#     keys=($(cleos create key --to-console))
+#     pub=${keys[5]}
+#     priv=${keys[2]}
+
+#     cleos wallet import --private-key $priv;
+
+    cleos system newaccount eosio \
+      --transfer $account \
+      $EOS_PUB_KEY \
+      --stake-net "100000000.0000 SYS" \
+      --stake-cpu "100000000.0000 SYS" \
+      --buy-ram-kbytes 8192;
+
+    cleos system regproducer $account;
+  done
+}
+
 run_bios() {
   echo 'Initializing BIOS sequence...'
   create_wallet
@@ -139,4 +186,5 @@ run_bios() {
   deploy_system_contracts
   set_msig_privileged_account
   init_system_account
+  create_producer_accounts
 }

@@ -29,7 +29,6 @@ override.tf.json
 hosts
 
 # blockchain mounts
-biosboot/
 protocol_features/
 secrets/
 
