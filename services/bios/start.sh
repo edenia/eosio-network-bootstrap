@@ -30,6 +30,7 @@ term_handler() {
 }
 
 start_nodeos() {
+  echo 'Starting Bios Node on an existing network...'
   $nodeos &
   sleep 10;
   if [ -z "$(pidof nodeos)" ]; then
@@ -38,11 +39,16 @@ start_nodeos() {
 }
 
 start_bios_nodeos() {
-  echo 'Starting new chain from genesis JSON'
+  echo 'Starting new chain from genesis JSON...'
   $nodeos --delete-all-blocks --genesis-json $WORK_DIR/genesis.json &
 }
 
-trap 'echo "Shutdown of EOSIO service...";kill ${!}; term_handler' 2 15;
+set_prods() {
+  echo 'Setting Block Producer Schedule...'
+  cleos push action eosio setprods $WORK_DIR/utils/schedule.json -p eosio@active
+}
+
+trap 'echo "Shutting down nodeos service...";kill ${!}; term_handler' 2 15;
 
 # Start either bios script or regular nodeos
 $bios_should_run && start_bios_nodeos || start_nodeos
@@ -56,8 +62,12 @@ pid="$(pidof nodeos)"
 if $bios_should_run; then
   sleep 5;
   run_bios &
+  sleep 10
+  set_prods &
+  sleep 20
+  echo 'Bios sequence completed. Shutting down nodeos...'
+  term_handler &
 fi
-
 
 while true
 do

@@ -72,6 +72,8 @@ services:
     volumes:
       - ../services/api-node:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
+    ports:
+      - 80:80
   wallet:
     build:
       target: local-stage
