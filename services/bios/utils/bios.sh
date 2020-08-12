@@ -27,16 +27,11 @@ create_wallet() {
 
 create_system_accounts() {
   system_accounts=( \
-    "eosio.bpay" \
     "eosio.msig" \
-    "eosio.names" \
-    "eosio.ram" \
-    "eosio.ramfee" \
-    "eosio.saving" \
-    "eosio.stake" \
     "eosio.token" \
-    "eosio.vpay" \
-    "eosio.rex" \
+    "validator1" \
+    "validator2" \
+    "validator3" \
   )
 
   for account in "${system_accounts[@]}"; do
@@ -88,26 +83,15 @@ activate_features() {
 
   # WTMSIG_BLOCK_SIGNATURES
   cleos push action eosio activate '["299dcb6af692324b899b39f16d5a530a33062804e41f09dc97e9f156b4476707"]' -p eosio
-}
 
-create_and_issue_sys_tokens() {
-  cleos push action \
-    eosio.token create \
-    '[ "eosio", "10000000000.0000 SYS" ]' -p eosio.token@active
-  cleos push action \
-    eosio.token issue \
-    '[ "eosio", "1000000000.0000 SYS", "memo" ]' -p eosio@active
+  sleep 2;
 }
 
 deploy_system_contracts() {
-  # Deploy eosio.token
   cleos set contract eosio.token $EOSIO_CONTRACTS_DIRECTORY/eosio.token/
   sleep 2;
 
   cleos set contract eosio.msig $EOSIO_CONTRACTS_DIRECTORY/eosio.msig/
-  sleep 2;
-
-  create_and_issue_sys_tokens
   sleep 2;
 
   curl --request POST \
@@ -118,9 +102,9 @@ deploy_system_contracts() {
   result=1
   set +e;
   while [ "$result" -ne "0" ]; do
-    echo "Setting old eosio.system contract...";
+    echo "Setting old eosio.bios contract...";
     cleos set contract eosio \
-      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.system/ \
+      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.bios/ \
       -x 1000;
     result=$?
     [[ "$result" -ne "0" ]] && echo "Failed, trying again";
@@ -132,9 +116,9 @@ deploy_system_contracts() {
   set +e;
   result=1;
   while [ "$result" -ne "0" ]; do
-    echo "Setting latest eosio.system contract...";
+    echo "Setting latest eosio.bios contract...";
     cleos set contract eosio \
-      $EOSIO_CONTRACTS_DIRECTORY/eosio.system/ \
+      $EOSIO_CONTRACTS_DIRECTORY/eosio.bios/ \
       -p eosio \
       -x 1000;
     result=$?
@@ -148,15 +132,58 @@ set_msig_privileged_account() {
     '["eosio.msig", 1]' -p eosio@active
 }
 
-init_system_account() {
-  cleos push action eosio init \
-    '["0", "4,SYS"]' -p eosio@active
+create_producer_accounts() {
+  # TODO: @danazkari this needs to be in json
+  # and in an env variable so that it can be configured
+  producer_accounts=( \
+    "baas1.uno" \
+    "baas1.dos" \
+    "baas1.tres" \
+    "baas1.cuatro" \
+    "baas1.cinco" \
+    "baas1.seis" \
+    "baas1.siete" \
+    "baas2.uno" \
+    "baas2.dos" \
+    "baas2.tres" \
+    "baas2.cuatro" \
+    "baas2.cinco" \
+    "baas2.seis" \
+    "baas2.siete" \
+    "baas3.uno" \
+    "baas3.dos" \
+    "baas3.tres" \
+    "baas3.cuatro" \
+    "baas3.cinco" \
+    "baas3.seis" \
+    "baas3.siete" \
+  );
+
+  for account in "${producer_accounts[@]}"; do
+    echo "Creating producer account '$account'";
+
+#     keys=($(cleos create key --to-console))
+#     pub=${keys[5]}
+#     priv=${keys[2]}
+
+#     cleos wallet import --private-key $priv;
+
+    cleos system newaccount eosio \
+      --transfer $account \
+      $EOS_PUB_KEY \
+      --stake-net "100000000.0000 SYS" \
+      --stake-cpu "100000000.0000 SYS" \
+      --buy-ram-kbytes 8192;
+
+    cleos system regproducer $account;
+  done
 }
 
 run_bios() {
+  echo 'Initializing BIOS sequence...'
   create_wallet
   create_system_accounts
   deploy_system_contracts
   set_msig_privileged_account
-  init_system_account
+  # create_producer_accounts
 }

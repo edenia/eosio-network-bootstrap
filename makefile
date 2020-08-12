@@ -2,6 +2,11 @@ include mkutils/meta.mk mkutils/help.mk
 
 BUILDS_DIR ?= ./.builds
 
+build-docker-compose: ##@local Build local docker-compose
+	@rm -Rf $(BUILDS_DIR)/docker-compose.yml
+	@mkdir -p $(BUILDS_DIR)
+	@$(SHELL_EXPORT) envsubst <docker-compose.yml >$(BUILDS_DIR)/docker-compose.yml
+
 build: ##@devops Builds a new  production docker image
 build:
 	@docker build \
@@ -9,10 +14,12 @@ build:
 		-t $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(VERSION) \
 		.
 
+run-vault: ##@local Only run the vault service
+run-vault: build-docker-compose
+	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml up -d vault
+
 run: ##@local Build and run the blockchain locally (validator, wallet and writer-api)
-	@rm -Rf $(BUILDS_DIR)/docker-compose.yml
-	@mkdir -p $(BUILDS_DIR)
-	@$(SHELL_EXPORT) envsubst <docker-compose.yml >$(BUILDS_DIR)/docker-compose.yml
+run: build-docker-compose
 	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml up -d --build
 ifeq (,$(wildcard vault_keys.json))
 	@echo "Generating vault keys... [vault_keys.json]"
@@ -33,7 +40,7 @@ endif
 	done
 
 logs:
-		@docker-compose -f $(BUILDS_DIR)/docker-compose.yml logs -f validator
+	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml logs -f bios
 
 stop: ##@local Stop all instances of the currently running services
 	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml stop
