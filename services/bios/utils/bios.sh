@@ -138,5 +138,4 @@ run_bios() {
   create_system_accounts
   deploy_system_contracts
   set_msig_privileged_account
-  init_system_account
 }
