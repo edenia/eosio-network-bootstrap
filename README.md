@@ -21,7 +21,6 @@ This collection of scripts launches a local EOSIO network with multiple node con
 
 - 0.1.0
 
-
 ## Installation
 Basic knowledge about Docker, Docker Compose, and Shell Script is required.
 
@@ -92,9 +91,9 @@ After the pod for the vault has been initiated, make sure you do:
 
 ## Contributing
 
-Please Read EOS Costa Rica's [Open Source Contributing Guidelines](https://developers.eoscostarica.io/docs/open-source-guidelines).
+Please Read EOS Costa Rica's [Open Source Contributing Guidelines](https://guide.eoscostarica.io/docs/open-source-guidelines).
 
-Please report bugs big and small by [opening an issue](https://github.com/eoscostarica/backend-boilerplate/issues)
+Please report bugs big and small by [opening an issue](https://github.com/eoscostarica/blockchain-nodes/issues)
 
 ### Contributors
 
