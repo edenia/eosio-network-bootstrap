@@ -6,7 +6,7 @@
 
 <center>
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) ![GitHub](https://img.shields.io/github/license/eoscostarica/blockchain-nodes) ![GitHub repo size](https://img.shields.io/github/repo-size/eoscostarica/blockchain-nodes) ![Twitter Follow](https://img.shields.io/twitter/follow/eoscostarica?style=social) ![GitHub forks](https://img.shields.io/github/forks/eoscostarica/blockchain-nodes?style=social)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) ![GitHub](https://img.shields.io/github/license/eoscostarica/eosio-network-bootstrap) ![GitHub repo size](https://img.shields.io/github/repo-size/eoscostarica/eosio-network-bootstrap) ![Twitter Follow](https://img.shields.io/twitter/follow/eoscostarica?style=social) ![GitHub forks](https://img.shields.io/github/forks/eoscostarica/blockchain-nodes?style=social)
 
 </center>
 
@@ -14,6 +14,8 @@
 ## About This Project:
 
 This collection of scripts launches a local EOSIO network with multiple node configurations. There is also an automated boot sequence that utilizes a temporary "bios" node to launch the chain, deploy system contracts and set a schedule with three active block producer nodes. 
+
+This project can be useful as a development environment for system contracts.
 
 ![Blockchain Nodes](./blockchain-nodes.png)
 
@@ -34,7 +36,7 @@ Some things you need before getting started:
 
 ### First time run
 
-1.  Clone this repo using `git clone --depth=1 https://github.com/eoscostarica/blockchain-nodes.git <YOUR_PROJECT_NAME>`
+1.  Clone this repo using `git clone --depth=1 https://github.com/eoscostarica/eosio-network-bootstrap.git <YOUR_PROJECT_NAME>`
 2.  Move to the appropriate directory: `cd <YOUR_PROJECT_NAME>`.
 3.  Set the environment variables  `EOS_PUB_KEY` & `EOS_PRIV_KEY`
 4.  Enter command `make run`
@@ -71,7 +73,7 @@ Within the download you'll find the following directories and files
 │ |   └── vault.sh ....................... Vault script for secure key storage
 │ ├── vault .............................. Vault Service
 │ | └── config ........................... Valut Configuration
-│ │   └── vault.json ................. Valut Configuration
+│ │   └── vault.json ..................... Valut Configuration
 │ └── wallet ............................. KEOSD Wallet Service
 │   └──  start.sh ........................ Wallet Start Script
 ├── kubernetes/ .......................... Kubernetes Definitions Dir
@@ -93,7 +95,7 @@ After the pod for the vault has been initiated, make sure you do:
 
 Please Read EOS Costa Rica's [Open Source Contributing Guidelines](https://guide.eoscostarica.io/docs/open-source-guidelines).
 
-Please report bugs big and small by [opening an issue](https://github.com/eoscostarica/blockchain-nodes/issues)
+Please report bugs big and small by [opening an issue](https://github.com/eoscostarica/eosio-network-bootstrap/issues)
 
 ### Contributors
 
