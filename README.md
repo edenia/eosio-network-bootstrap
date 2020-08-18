@@ -117,7 +117,7 @@ Thanks goes to these wonderful people who support this project!
 
 ## License
 
-MIT © [EOS Costa Rica](https://eoscostarica.io)
+GNU GPLv3 © [EOS Costa Rica](https://eoscostarica.io)
 
 ## About EOS Costa Rica
 
