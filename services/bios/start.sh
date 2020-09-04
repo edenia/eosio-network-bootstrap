@@ -63,10 +63,7 @@ if $bios_should_run; then
   sleep 5;
   run_bios &
   sleep 10
-  set_prods &
-  sleep 20
-  echo 'Bios sequence completed. Shutting down nodeos...'
-  term_handler &
+  echo 'Bios sequence completed.'
 fi
 
 while true

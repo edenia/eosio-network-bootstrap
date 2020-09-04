@@ -27,8 +27,16 @@ create_wallet() {
 
 create_system_accounts() {
   system_accounts=( \
+    "eosio.bpay" \
     "eosio.msig" \
+    "eosio.names" \
+    "eosio.ram" \
+    "eosio.ramfee" \
+    "eosio.saving" \
+    "eosio.stake" \
     "eosio.token" \
+    "eosio.vpay" \
+    "eosio.rex" \
     "producer1" \
     "producer2" \
     "producer3" \
@@ -46,6 +54,7 @@ create_system_accounts() {
     cleos create account eosio $account $pub;
   done
 }
+
 
 activate_features() {
   # GET_SENDER
@@ -94,6 +103,15 @@ deploy_system_contracts() {
   cleos set contract eosio.msig $EOSIO_CONTRACTS_DIRECTORY/eosio.msig/
   sleep 2;
 
+  cleos set contract eosio.msig $EOSIO_CONTRACTS_DIRECTORY/eosio.wrap/
+  sleep 2;
+
+  cleos push action eosio.token create '[ "eosio", "10000000000.0000 EOS" ]' -p eosio.token@active
+  sleep 2;
+
+  cleos push action eosio.token issue '[ "eosio", "1000000000.0000 EOS", "memo" ]' -p eosio@active
+  sleep 2;
+
   curl --request POST \
     --url http://127.0.0.1:8888/v1/producer/schedule_protocol_feature_activations \
     -d '{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}'
@@ -102,9 +120,9 @@ deploy_system_contracts() {
   result=1
   set +e;
   while [ "$result" -ne "0" ]; do
-    echo "Setting old eosio.bios contract...";
+    echo "Setting old eosio.system contract...";
     cleos set contract eosio \
-      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.bios/ \
+      $EOSIO_OLD_CONTRACTS_DIRECTORY/eosio.system/ \
       -x 1000;
     result=$?
     [[ "$result" -ne "0" ]] && echo "Failed, trying again";
@@ -116,9 +134,9 @@ deploy_system_contracts() {
   set +e;
   result=1;
   while [ "$result" -ne "0" ]; do
-    echo "Setting latest eosio.bios contract...";
+    echo "Setting latest eosio.system contract...";
     cleos set contract eosio \
-      $EOSIO_CONTRACTS_DIRECTORY/eosio.bios/ \
+      $EOSIO_CONTRACTS_DIRECTORY/eosio.system/ \
       -p eosio \
       -x 1000;
     result=$?
@@ -127,9 +145,14 @@ deploy_system_contracts() {
   set -e;
 }
 
+
 set_msig_privileged_account() {
   cleos push action eosio setpriv \
     '["eosio.msig", 1]' -p eosio@active
+}
+
+initialize_system_account(){
+  cleos push action eosio init '["0", "4,EOS"]' -p eosio@active
 }
 
 run_bios() {
@@ -138,4 +161,5 @@ run_bios() {
   create_system_accounts
   deploy_system_contracts
   set_msig_privileged_account
+  initialize_system_account
 }
