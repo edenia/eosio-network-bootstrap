@@ -54,23 +54,34 @@ services:
     volumes:
       - ../services/validator3:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
-  seed:
+  boot:
     build:
       target: local-stage
       context: ../
       dockerfile: ./Dockerfile
-    container_name: seed
+    container_name: boot
     volumes:
-      - ../services/seed:/opt/application
+      - ../services/boot:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
-  api-node:
+  writer:
     build:
       target: local-stage
       context: ../
       dockerfile: ./Dockerfile
-    container_name: api-node
+    container_name: writer
     volumes:
-      - ../services/api-node:/opt/application
+      - ../services/writer:/opt/application
+    image: ${IMAGE_NAME}:${VERSION}
+    ports:
+      - 8080:8080
+  observer:
+    build:
+      target: local-stage
+      context: ../
+      dockerfile: ./Dockerfile
+    container_name: observer
+    volumes:
+      - ../services/observer:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
     ports:
       - 80:80

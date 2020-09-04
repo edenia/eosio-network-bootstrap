@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "Starting API Node...";
+echo "Starting WRITER Node...";
 set -e;
 ulimit -n 65535
 ulimit -s 64000

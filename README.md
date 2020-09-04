@@ -38,7 +38,7 @@ Some things you need before getting started:
 
 1.  Clone this repo using `git clone --depth=1 https://github.com/eoscostarica/eosio-network-bootstrap.git <YOUR_PROJECT_NAME>`
 2.  Move to the appropriate directory: `cd <YOUR_PROJECT_NAME>`.
-3.  Set the environment variables  `EOS_PUB_KEY` & `EOS_PRIV_KEY`
+3.  Set the environment variables  `EOS_PUB_KEY` & `EOS_PRIV_KEY` (see .env.example)
 4.  Enter command `make run`
 
 ### Quick start

@@ -23,8 +23,8 @@ RUN apt-get install -y /eosio-cdt-v1.6.3.deb \
   && make -j$(sysctl -n hw.ncpu)
 
 RUN apt-get install -y /eosio-cdt-v1.7.0.deb \
-  && git clone https://github.com/eoscostarica/eosio.contracts.git /opt/eosio.contracts \
-  && cd /opt/eosio.contracts && git checkout release/1.9.x \
+  && git clone https://github.com/LatamLink/eosio.contracts.git /opt/eosio.contracts \
+  && cd /opt/eosio.contracts && git checkout dev \
   && rm -fr build \
   && mkdir build  \
   && cd build \
