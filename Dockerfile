@@ -4,6 +4,8 @@ ENV WORK_DIR /opt/application
 ENV EOSIO_PACKAGE_URL https://github.com/eosio/eos/releases/download/v2.0.7/eosio_2.0.7-1-ubuntu-18.04_amd64.deb
 ENV EOSIO_CDT_OLD_URL https://github.com/eosio/eosio.cdt/releases/download/v1.6.3/eosio.cdt_1.6.3-1-ubuntu-18.04_amd64.deb
 ENV EOSIO_CDT_URL https://github.com/EOSIO/eosio.cdt/releases/download/v1.7.0/eosio.cdt_1.7.0-1-ubuntu-18.04_amd64.deb
+ENV EOSIO_CONTRACTS_URL https://github.com/eosio/eosio.contracts.git
+ENV EOSIO_CONTRACTS_BRANCH rentbw-1.9
 
 RUN apt-get update && apt-get install -y wget jq git build-essential cmake
 
@@ -14,7 +16,7 @@ RUN wget -O /eosio.deb $EOSIO_PACKAGE_URL \
 RUN apt-get install -y /eosio.deb
 
 RUN apt-get install -y /eosio-cdt-v1.6.3.deb \
-  && git clone https://github.com/EOSIO/eosio.contracts.git /opt/old-eosio.contracts \
+  && git clone $EOSIO_CONTRACTS_URL /opt/old-eosio.contracts \
   && cd /opt/old-eosio.contracts && git checkout release/1.8.x \
   && rm -fr build \
   && mkdir build  \
@@ -23,8 +25,8 @@ RUN apt-get install -y /eosio-cdt-v1.6.3.deb \
   && make -j$(sysctl -n hw.ncpu)
 
 RUN apt-get install -y /eosio-cdt-v1.7.0.deb \
-  && git clone https://github.com/eoscostarica/eosio.contracts.git /opt/eosio.contracts \
-  && cd /opt/eosio.contracts && git checkout release/1.9.x \
+  && git clone $EOSIO_CONTRACTS_URL /opt/eosio.contracts \
+  && cd /opt/eosio.contracts && git checkout $EOSIO_CONTRACTS_BRANCH \
   && rm -fr build \
   && mkdir build  \
   && cd build \

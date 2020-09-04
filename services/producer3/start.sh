@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "Starting VALIDATOR Node...";
+echo "Starting block producer Node...";
 set -e;
 ulimit -n 65535
 ulimit -s 64000

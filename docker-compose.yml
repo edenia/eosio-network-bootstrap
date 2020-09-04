@@ -16,43 +16,43 @@ services:
     depends_on:
       - "vault"
       - "wallet"
-  validator1:
+  producer1:
     build:
       target: local-stage
       context: ../
       dockerfile: ./Dockerfile
-    container_name: validator1
+    container_name: producer1
     environment:
       - EOS_PUB_KEY
       - EOS_PRIV_KEY
     volumes:
-      - ../services/validator1:/opt/application
+      - ../services/producer1:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
     #entrypoint: ["sh", "-c", "while true; do echo 42; sleep 5; done"]
     #command: ["./wait-for-it.sh", "db:5432", "--", "python", "app.py"]
-  validator2:
+  producer2:
     build:
       target: local-stage
       context: ../
       dockerfile: ./Dockerfile
-    container_name: validator2
+    container_name: producer2
     environment:
       - EOS_PUB_KEY
       - EOS_PRIV_KEY
     volumes:
-      - ../services/validator2:/opt/application
+      - ../services/producer2:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
-  validator3:
+  producer3:
     build:
       target: local-stage
       context: ../
       dockerfile: ./Dockerfile
-    container_name: validator3
+    container_name: producer3
     environment:
       - EOS_PUB_KEY
       - EOS_PRIV_KEY
     volumes:
-      - ../services/validator3:/opt/application
+      - ../services/producer3:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
   seed:
     build:
@@ -73,7 +73,7 @@ services:
       - ../services/api-node:/opt/application
     image: ${IMAGE_NAME}:${VERSION}
     ports:
-      - 80:80
+      - 8080:80
   wallet:
     build:
       target: local-stage

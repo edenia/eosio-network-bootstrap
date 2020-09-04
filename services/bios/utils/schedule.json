@@ -1,7 +1,7 @@
 {
   "schedule": [
   {
-    "producer_name": "validator1",
+    "producer_name": "producer1",
     "authority": [
       "block_signing_authority_v0",
       {
@@ -15,7 +15,7 @@
     ]
   },
   {
-    "producer_name": "validator2",
+    "producer_name": "producer2",
     "authority": [
       "block_signing_authority_v0",
       {
@@ -29,7 +29,7 @@
     ]
   },
   {
-    "producer_name": "validator3",
+    "producer_name": "producer3",
     "authority": [
       "block_signing_authority_v0",
       {
