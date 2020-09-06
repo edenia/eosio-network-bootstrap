@@ -40,13 +40,13 @@ endif
 	done
 
 logs:
-	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml logs -f bios
+	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml logs -f bios 
 
 stop: ##@local Stop all instances of the currently running services
 	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml stop
 
 down: ##@local Stop all instances of the currently running services
-	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml down
+	@docker-compose -f $(BUILDS_DIR)/docker-compose.yml down --remove-orphans
 
 run-shell: ##@devops Run ansible machine but just open up a shell
 run-shell: build

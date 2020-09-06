@@ -42,6 +42,35 @@ create_system_accounts() {
 
     cleos create account eosio $account $pub;
   done
+
+  echo "Creating writer account..."
+  cleos push action eosio newaccount \
+  '{
+      "creator" : "eosio", 
+      "name" : "writer",
+      "active" : {
+          "threshold":1,
+          "keys":[],
+          "accounts":[{"weight":1, "permission" :{"actor":"eosio", "permission":"active"}}],
+          "waits":[]
+      },
+      "owner" : {
+          "threshold":1,
+          "keys":[],
+          "accounts":[{"weight":1, "permission":{"actor":"eosio", "permission":"active"}}],
+          "waits":[]
+      }
+  }' -p eosio
+
+  echo 'Create access permission'
+
+  cleos set account permission writer access \
+  '{
+      "threshold":1,
+      "keys":[],
+      "accounts":[{"weight":1, "permission" :{"actor":"eosio", "permission":"active"}}],
+      "waits":[]
+  }' owner -p writer@owner
 }
 
 activate_features() {
@@ -110,6 +139,9 @@ deploy_system_contracts() {
 
   activate_features
 
+  echo 'Set 0 resources to writer account (unusable)'
+  cleos push action eosio setalimits '["writer", -1, 0, 0, 0]' -p eosio
+
   set +e;
   result=1;
   while [ "$result" -ne "0" ]; do
@@ -129,49 +161,145 @@ set_msig_privileged_account() {
     '["eosio.msig", 1]' -p eosio@active
 }
 
-
 set_lacchain_permissioning() {
-  echo 'Creating BIOS Partner Account'
+  
+  echo 'Create BIOS Partner Account'
 
   keys=($(cleos create key --to-console))
   pub=${keys[5]}
   priv=${keys[2]}
 
+  echo 'secret' $priv
+
   cleos wallet import --private-key $priv
 
-  cleos push action eosio newaccount \
-      '["eosio",
-        "latamlink",
-        "'$pub'",
-        "'$pub'"]' -p eosio@active
+  echo 'Create Partner Entity'
+  cleos push action eosio addentity '["latamlink", 1, '$pub']' -p eosio@active
 
-  # Add BIOS entity
-  # cleos push action eosio addentity \
-  #     '["latamlink", "PARTNER", $pub]' -p eosio@active
+  echo 'Get Partner Entity Account'
+  cleos get account latamlink
 
-  # Add BIOS validator
-  # cleos push action eosio addvalidator \
-  #     '["latamlink", "latamlink", $pub]' -p eosio@active
+  echo 'Inspect entity Table'
+  cleos get table eosio eosio entity
 
-  # Set BIOS entity info
-  # cleos push action eosio setentinfo \
-  #     '["latamlink", "{ }"]' -p eosio@active
+  #echo 'Set Entity Info'
+  #entity_info="$(jq -r '.' $WORK_DIR/utils/entity.json)"
+  #cleos push action eosio setentinfo '["latamlink", "'$entity_info'"]' -p latamlink@active
 
-  # Add boot Node
-  # cleos push action eosio addboot \
-  #     '["latamlink", "latamlink"]' -p eosio@active
+  echo 'Register Validator Node'
+  # NOTE: Was not able to add as permissioning commitee
+  cleos push action eosio addvalidator \
+  '{
+    "entity": "latamlink",
+    "name": "eoscostarica",
+    "validator_authority": [
+      "block_signing_authority_v0",
+      {
+        "threshold": 1,
+        "keys": [{
+          "key": "'$pub'",
+          "weight": 1
+        }]
+      }
+    ]
+  }' -p latamlink@active
+
+  # echo 'Set Active Validator Node'
+  # cleos push action eosio setschedule \
+  # '{
+  #   "validators": [
+  #     "eoscostarica"
+  #   ]
+  # }' -p eosio@active
+
+  echo 'Register Boot Node'
+  cleos push action eosio addboot \
+  '{
+    "entity": "latamlink",
+    "name": "boot1"
+  }' -p latamlink@active
 
   # Set Boot Node Info
-  # cleos push action eosio setnodeinfo \
-  #     '["latamlink", "{ }"]' -p eosio@active
+  # cleos push action eosio setnodeinfo $WORK_DIR/utils/boot.json -p eosio@active
 
-  # Add Writer Node
-  # cleos push action eosio addwriter \
-  #     '["latamlink", "latamlink" "latamlink"]' -p eosio@active
+  echo 'Show writer account'
+  cleos get account writer
+
+  echo 'Register Writer'
+  cleos push action eosio addwriter \
+  '{
+	"name": "writer1",
+	"entity": "latamlink",
+	"writer_authority": {
+		"threshold": 1,
+		"keys": [{
+			"key": "'$pub'",
+			"weight": 1
+		}],
+		"accounts": [],
+		"waits": []
+	  }
+  }' -p latamlink@active 
+
+  echo 'Create access permission'
+
+  cleos set account permission writer access \
+  '{
+      "threshold":1,
+      "keys":[],
+      "accounts":[{"weight":1, "permission" :{"actor":"writer1", "permission":"active"}}],
+      "waits":[]
+  }' owner -p writer@owner
 
   # Set Writer Node Info
-  # cleos push action eosio setnodeinfo \
-  #     '["latamlink", "{ }"]' -p eosio@active
+  # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
+
+  echo 'Register Observer'
+  cleos push action eosio addobserver \
+  '{
+    "entity": "latamlink",
+    "name": "observer1"
+  }' -p latamlink@active
+
+  # Set Observer Node Info
+  # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
+
+  # Create Account for Smart Contract
+  # echo 'Creating end user account'
+  # keys=($(cleos create key --to-console))
+  # pub=${keys[5]}
+  # priv=${keys[2]}
+
+  # cleos wallet import --private-key $priv
+
+  # cleos push action eosio newaccount \
+  #     '[
+  #       "latamlink",
+  #       "usercontract",
+  #       {
+  #         "threshold": 1,
+  #         "keys": [
+  #           {
+  #             "key": "'$pub'",
+  #             "weight": 1
+  #           }
+  #         ],
+  #         "accounts": [],
+  #         "waits": []
+  #       },
+  #       {
+  #         "threshold": 1,
+  #         "keys": [
+  #           {
+  #             "key": "'$pub'",
+  #             "weight": 1
+  #           }
+  #         ],
+  #         "accounts": [],
+  #         "waits": []
+  #       }
+  #     ]' -p eosio@active
+
 }
 
 run_bios() {
@@ -180,5 +308,5 @@ run_bios() {
   create_system_accounts
   deploy_system_contracts
   set_msig_privileged_account
-  #set_lacchain_permissioning
+  set_lacchain_permissioning
 }
