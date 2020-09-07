@@ -13,7 +13,7 @@ nodeos=$"nodeos \
   --config-dir $CONFIG_DIR \
   --data-dir $DATA_DIR \
   --blocks-dir $DATA_DIR/blocks \
-  --signature-provider $EOS_PUB_KEY=KEY:$EOS_PRIV_KEY" ;
+  --signature-provider EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva=KEY:5JPw7dpt19swcVD9ztGBqwCs3zWT9EoDRXPi49pg7ersofKXEBN" ;
 
 term_handler() {
   if [ $pid -ne 0 ]; then

@@ -180,24 +180,54 @@ set_lacchain_permissioning() {
   cleos get account latamlink
 
   echo 'Inspect entity Table'
-  cleos get table eosio eosio entity
+  cleos get table eosio eosio node
 
   #echo 'Set Entity Info'
   #entity_info="$(jq -r '.' $WORK_DIR/utils/entity.json)"
   #cleos push action eosio setentinfo '["latamlink", "'$entity_info'"]' -p latamlink@active
 
-  echo 'Register Validator Node'
+  echo 'Register Validator Nodes'
   # NOTE: Was not able to add as permissioning commitee
   cleos push action eosio addvalidator \
   '{
     "entity": "latamlink",
-    "name": "eoscostarica",
+    "name": "validator1",
     "validator_authority": [
       "block_signing_authority_v0",
       {
         "threshold": 1,
         "keys": [{
-          "key": "'$pub'",
+          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
+          "weight": 1
+        }]
+      }
+    ]
+  }' -p latamlink@active
+
+  '{
+    "entity": "latamlink",
+    "name": "validator2",
+    "validator_authority": [
+      "block_signing_authority_v0",
+      {
+        "threshold": 1,
+        "keys": [{
+          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
+          "weight": 1
+        }]
+      }
+    ]
+  }' -p latamlink@active
+
+  '{
+    "entity": "latamlink",
+    "name": "validator3",
+    "validator_authority": [
+      "block_signing_authority_v0",
+      {
+        "threshold": 1,
+        "keys": [{
+          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
           "weight": 1
         }]
       }
@@ -241,15 +271,6 @@ set_lacchain_permissioning() {
 	  }
   }' -p latamlink@active 
 
-  echo 'Create access permission'
-
-  cleos set account permission writer access \
-  '{
-      "threshold":1,
-      "keys":[],
-      "accounts":[{"weight":1, "permission" :{"actor":"writer1", "permission":"active"}}],
-      "waits":[]
-  }' owner -p writer@owner
 
   # Set Writer Node Info
   # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
@@ -258,47 +279,38 @@ set_lacchain_permissioning() {
   cleos push action eosio addobserver \
   '{
     "entity": "latamlink",
-    "name": "observer1"
+    "observer": "observer1"
   }' -p latamlink@active
 
   # Set Observer Node Info
   # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
 
-  # Create Account for Smart Contract
-  # echo 'Creating end user account'
-  # keys=($(cleos create key --to-console))
-  # pub=${keys[5]}
-  # priv=${keys[2]}
+  echo 'Check Nodes Table'
+  cleos get table eosio eosio node
 
-  # cleos wallet import --private-key $priv
 
-  # cleos push action eosio newaccount \
-  #     '[
-  #       "latamlink",
-  #       "usercontract",
-  #       {
-  #         "threshold": 1,
-  #         "keys": [
-  #           {
-  #             "key": "'$pub'",
-  #             "weight": 1
-  #           }
-  #         ],
-  #         "accounts": [],
-  #         "waits": []
-  #       },
-  #       {
-  #         "threshold": 1,
-  #         "keys": [
-  #           {
-  #             "key": "'$pub'",
-  #             "weight": 1
-  #           }
-  #         ],
-  #         "accounts": [],
-  #         "waits": []
-  #       }
-  #     ]' -p eosio@active
+  echo 'Set schedule'
+  cleos push action eosio setschedule '[["validator1"],["validator2"],["validator3"]]' -p eosio
+  cleos get schedule
+
+# Create Account for Smart Contract
+echo 'Creating end user account'
+
+cleos push action eosio newaccount \
+  '{
+      "creator" : "latamlink",
+      "name" : "user1",
+      "active" : {
+          "threshold":2,
+          "keys":[ {"weight":1,"key":"EOS8mnEwNj2F8Qjwr3NUyViXgLPxW2r6bL8Yuyg7wPXraD36cpUnT"}],
+          "accounts":[ {"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
+      },
+      "owner" : {
+          "threshold":2,
+          "keys":[ {"weight":1,"key":"EOS8mnEwNj2F8Qjwr3NUyViXgLPxW2r6bL8Yuyg7wPXraD36cpUnT"}],
+          "accounts":[{"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
+      },
+  }' -p latamlink@active
 
 }
 
