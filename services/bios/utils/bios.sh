@@ -137,6 +137,8 @@ deploy_system_contracts() {
   done
   set -e;
 
+  ### Chech out eosio.boot 
+
   activate_features
 
   echo 'Set 0 resources to writer account (unusable)'
@@ -204,36 +206,6 @@ set_lacchain_permissioning() {
     ]
   }' -p latamlink@active
 
-  '{
-    "entity": "latamlink",
-    "name": "validator2",
-    "validator_authority": [
-      "block_signing_authority_v0",
-      {
-        "threshold": 1,
-        "keys": [{
-          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
-          "weight": 1
-        }]
-      }
-    ]
-  }' -p latamlink@active
-
-  '{
-    "entity": "latamlink",
-    "name": "validator3",
-    "validator_authority": [
-      "block_signing_authority_v0",
-      {
-        "threshold": 1,
-        "keys": [{
-          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
-          "weight": 1
-        }]
-      }
-    ]
-  }' -p latamlink@active
-
   # echo 'Set Active Validator Node'
   # cleos push action eosio setschedule \
   # '{
@@ -270,7 +242,7 @@ set_lacchain_permissioning() {
 		"waits": []
 	  }
   }' -p latamlink@active 
-
+  # Add new authority for creating new accounts.
 
   # Set Writer Node Info
   # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
@@ -290,7 +262,7 @@ set_lacchain_permissioning() {
 
 
   echo 'Set schedule'
-  cleos push action eosio setschedule '[["validator1"],["validator2"],["validator3"]]' -p eosio
+  cleos push action eosio setschedule '[["validator1"]]' -p eosio
   cleos get schedule
 
 # Create Account for Smart Contract
@@ -311,6 +283,12 @@ cleos push action eosio newaccount \
           "accounts":[{"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
       },
   }' -p latamlink@active
+
+ # Deploy smart contract on user1 account
+
+ # Call action on user1 smart contract
+
+
 
 }
 
