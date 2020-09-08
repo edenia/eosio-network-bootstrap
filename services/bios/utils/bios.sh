@@ -37,6 +37,7 @@ create_system_accounts() {
     "eosio.token" \
     "eosio.vpay" \
     "eosio.rex" \
+    "eosio.reserv" \
     "producer1" \
     "producer2" \
     "producer3" \
