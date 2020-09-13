@@ -253,30 +253,37 @@ set_lacchain_permissioning() {
 
   echo 'Set schedule'
   cleos push action eosio setschedule '[["validator1"]]' -p eosio
+  sleep 2
   cleos get schedule
 
 echo 'Creating end user account for smart contract'
 
-cleos wallet import --private-key "5JNmHSKfr6JHLiD8f5J1fuKk3ajKxbvjAq5gSRGYf62cYPSEXcW";
+cleos wallet import --private-key "5KawKbfwJk2VReKccdFynXwVcWZz7nVbsTQYwYYEuELsjFbKvUU";
 cleos push action eosio newaccount \
   '{
       "creator" : "latamlink",
       "name" : "eosmechanics",
       "active" : {
           "threshold":2,
-          "keys":[ {"weight":1,"key":"EOS51mvf7tTdWUkyJmc9aB1SN1cNEWconE6rNhTqC3ai9WojhDr2e"}],
+          "keys":[ {"weight":1,"key":"EOS75UWSDJ7XSsneG1YTuZuZKe3CQVucwnrLnyRPB2SDUAKuuqyRL"}],
           "accounts":[ {"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
       },
       "owner" : {
           "threshold":2,
-          "keys":[ {"weight":1,"key":"EOS51mvf7tTdWUkyJmc9aB1SN1cNEWconE6rNhTqC3ai9WojhDr2e"}],
+          "keys":[ {"weight":1,"key":"EOS75UWSDJ7XSsneG1YTuZuZKe3CQVucwnrLnyRPB2SDUAKuuqyRL"}],
           "accounts":[{"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
       },
   }' -p latamlink@active
 
- echo 'Deploy performance benchmark smart contract.'
+echo 'get account info for eosmechanics'
+cleos get account eosmechanics
 
- cleos set contract eosmechanics $WORK_DIR/eosmechanics/
+echo 'get account info for latamlink'
+cleos get account latamlink
+
+echo 'Deploy performance benchmark smart contract.'
+
+cleos -u http://writer:8080 set contract -j -d -s eosmechanics $WORK_DIR/eosmechanics/  -p latamlink@writer1 -p eosmechanics@active
 
  # Benchmark CPU  action on eosmechanics smart contract
 
