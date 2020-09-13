@@ -137,8 +137,6 @@ deploy_system_contracts() {
   done
   set -e;
 
-  ### Chech out eosio.boot 
-
   activate_features
 
   echo 'Set 0 resources to writer account (unusable)'
@@ -181,12 +179,11 @@ set_lacchain_permissioning() {
   echo 'Get Partner Entity Account'
   cleos get account latamlink
 
+  echo 'Set Entity Info'
+  cleos push action eosio setentinfo '{"entity":"latamlink", "info": "'`printf %q $(cat $WORK_DIR/utils/entity.json | tr -d "\r")`'"}' -p latamlink@active
+
   echo 'Inspect entity Table'
   cleos get table eosio eosio node
-
-  #echo 'Set Entity Info'
-  #entity_info="$(jq -r '.' $WORK_DIR/utils/entity.json)"
-  #cleos push action eosio setentinfo '["latamlink", "'$entity_info'"]' -p latamlink@active
 
   echo 'Register Validator Nodes'
   # NOTE: Was not able to add as permissioning commitee
@@ -206,13 +203,8 @@ set_lacchain_permissioning() {
     ]
   }' -p latamlink@active
 
-  # echo 'Set Active Validator Node'
-  # cleos push action eosio setschedule \
-  # '{
-  #   "validators": [
-  #     "eoscostarica"
-  #   ]
-  # }' -p eosio@active
+  echo 'Set Validator Node Info'
+  cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'`printf %q $(cat $WORK_DIR/utils/validator.json | tr -d "\r")`'"}' -p latamlink@active
 
   echo 'Register Boot Node'
   cleos push action eosio addboot \
@@ -221,11 +213,8 @@ set_lacchain_permissioning() {
     "name": "boot1"
   }' -p latamlink@active
 
-  # Set Boot Node Info
-  # cleos push action eosio setnodeinfo $WORK_DIR/utils/boot.json -p eosio@active
-
-  echo 'Show writer account'
-  cleos get account writer
+  echo 'Set Boot Node Info'
+  cleos push action eosio setnodeinfo '{"node":"boot1", "info": "'`printf %q $(cat $WORK_DIR/utils/boot.json | tr -d "\r")`'"}' -p latamlink@active
 
   echo 'Register Writer'
   cleos push action eosio addwriter \
@@ -242,10 +231,12 @@ set_lacchain_permissioning() {
 		"waits": []
 	  }
   }' -p latamlink@active 
-  # Add new authority for creating new accounts.
 
-  # Set Writer Node Info
-  # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
+  echo 'Set Writer Node Info'
+  cleos push action eosio setnodeinfo '{"node":"writer1", "info": "'`printf %q $(cat $WORK_DIR/utils/writer.json | tr -d "\r")`'"}' -p latamlink@active
+
+  echo 'Show writer account'
+  cleos get account writer
 
   echo 'Register Observer'
   cleos push action eosio addobserver \
@@ -254,41 +245,40 @@ set_lacchain_permissioning() {
     "observer": "observer1"
   }' -p latamlink@active
 
-  # Set Observer Node Info
-  # cleos push action eosio setnodeinfo $WORK_DIR/utils/writer.json -p eosio@active
+  echo 'Set Observer Node Info'
+  cleos push action eosio setnodeinfo '{"node":"observer1", "info": "'`printf %q $(cat $WORK_DIR/utils/observer.json | tr -d "\r")`'"}' -p latamlink@active
 
   echo 'Check Nodes Table'
   cleos get table eosio eosio node
-
 
   echo 'Set schedule'
   cleos push action eosio setschedule '[["validator1"]]' -p eosio
   cleos get schedule
 
-# Create Account for Smart Contract
-echo 'Creating end user account'
+echo 'Creating end user account for smart contract'
 
+cleos wallet import --private-key "5JNmHSKfr6JHLiD8f5J1fuKk3ajKxbvjAq5gSRGYf62cYPSEXcW";
 cleos push action eosio newaccount \
   '{
       "creator" : "latamlink",
-      "name" : "user1",
+      "name" : "eosmechanics",
       "active" : {
           "threshold":2,
-          "keys":[ {"weight":1,"key":"EOS8mnEwNj2F8Qjwr3NUyViXgLPxW2r6bL8Yuyg7wPXraD36cpUnT"}],
+          "keys":[ {"weight":1,"key":"EOS51mvf7tTdWUkyJmc9aB1SN1cNEWconE6rNhTqC3ai9WojhDr2e"}],
           "accounts":[ {"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
       },
       "owner" : {
           "threshold":2,
-          "keys":[ {"weight":1,"key":"EOS8mnEwNj2F8Qjwr3NUyViXgLPxW2r6bL8Yuyg7wPXraD36cpUnT"}],
+          "keys":[ {"weight":1,"key":"EOS51mvf7tTdWUkyJmc9aB1SN1cNEWconE6rNhTqC3ai9WojhDr2e"}],
           "accounts":[{"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
       },
   }' -p latamlink@active
 
- # Deploy smart contract on user1 account
+ echo 'Deploy performance benchmark smart contract.'
 
- # Call action on user1 smart contract
+ cleos set contract eosmechanics $WORK_DIR/eosmechanics/
 
-
+ # Benchmark CPU  action on eosmechanics smart contract
 
 }
 

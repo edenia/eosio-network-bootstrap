@@ -1,0 +1,16 @@
+{
+    "observer_keys":{
+        "peer_key": "EOS..."
+    },
+    "observer_endpoints":{
+        "observer_api": "http://lacchain.eosio.cr",
+        "observer_ssl": "https://lacchain.eosio.cr",
+        "observer_p2p": "lacchain.eosio.cr:9876"
+    },
+    "observer_location": {
+        "name": "San Jose",
+        "country": "CR",
+        "latitude": 9.936377,
+        "longitude": -84.078155
+    }
+}

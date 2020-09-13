@@ -35,6 +35,8 @@ secrets/
 # vault
 vault_keys.json
 
+# Local Mac files
 
+.DS_Store
 # Local env
 .env
