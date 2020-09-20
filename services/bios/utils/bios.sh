@@ -40,6 +40,9 @@ create_system_accounts() {
 
     cleos wallet import --private-key $priv
 
+    echo 'private key'
+    echo $priv
+
     cleos create account eosio $account $pub;
   done
 
@@ -62,15 +65,9 @@ create_system_accounts() {
       }
   }' -p eosio
 
-  echo 'Create access permission'
+  echo 'Set Writer ABI'
+  cleos set abi writer $WORK_DIR/utils/writer.abi -p writer@owner
 
-  cleos set account permission writer access \
-  '{
-      "threshold":1,
-      "keys":[],
-      "accounts":[{"weight":1, "permission" :{"actor":"eosio", "permission":"active"}}],
-      "waits":[]
-  }' owner -p writer@owner
 }
 
 activate_features() {
@@ -139,9 +136,6 @@ deploy_system_contracts() {
 
   activate_features
 
-  echo 'Set 0 resources to writer account (unusable)'
-  cleos push action eosio setalimits '["writer", -1, 0, 0, 0]' -p eosio
-
   set +e;
   result=1;
   while [ "$result" -ne "0" ]; do
@@ -162,7 +156,27 @@ set_msig_privileged_account() {
 }
 
 set_lacchain_permissioning() {
-  
+  echo 'Set Writer RAM'
+  cleos push action eosio setalimits '["writer", 10485760, 0, 0]' -p eosio
+
+  echo 'Create Network Groups'
+  #Validadores - 1 solo grupo - V1
+  cleos push action eosio netaddgroup '["v1", []]' -p eosio@active
+  #Boot - 2 grupos - B1 y B2
+  cleos push action eosio netaddgroup '["b1", []]' -p eosio@active
+  cleos push action eosio netaddgroup '["b2", []]' -p eosio@active
+  #Escritores - 1 grupo - E1
+  cleos push action eosio netaddgroup '["w1", []]' -p eosio@active
+  #Observers - 1 grupo - O1
+  cleos push action eosio netaddgroup '["o1", []]' -p eosio@active
+
+  #Tipos de conexiones:
+  #V1 se abre a V1, B1 y B2
+  #B1 se abre a V1, B1 y E1 (discutir si también a B2)
+  #B2 se abre a V1, B2 y O1 (discutir si también a B1)
+  #E1 se abre a B1
+  #O1 se abre a B2
+
   echo 'Create BIOS Partner Account'
 
   keys=($(cleos create key --to-console))
@@ -203,6 +217,9 @@ set_lacchain_permissioning() {
     ]
   }' -p latamlink@active
 
+  echo 'Set Validator Node Group'
+  cleos push action eosio netsetgroup '["validator1", ["v1"]]' -p eosio@active
+
   echo 'Set Validator Node Info'
   cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'`printf %q $(cat $WORK_DIR/utils/validator.json | tr -d "\r")`'"}' -p latamlink@active
 
@@ -213,6 +230,9 @@ set_lacchain_permissioning() {
     "name": "boot1"
   }' -p latamlink@active
 
+  echo 'Set Boot Node Group'
+  cleos push action eosio netsetgroup '["boot1", ["b1"]]' -p eosio@active
+  
   echo 'Set Boot Node Info'
   cleos push action eosio setnodeinfo '{"node":"boot1", "info": "'`printf %q $(cat $WORK_DIR/utils/boot.json | tr -d "\r")`'"}' -p latamlink@active
 
@@ -232,6 +252,9 @@ set_lacchain_permissioning() {
 	  }
   }' -p latamlink@active 
 
+  echo 'Set Writer Node Group'
+  cleos push action eosio netsetgroup '["writer1", ["w1"]]' -p eosio@active
+
   echo 'Set Writer Node Info'
   cleos push action eosio setnodeinfo '{"node":"writer1", "info": "'`printf %q $(cat $WORK_DIR/utils/writer.json | tr -d "\r")`'"}' -p latamlink@active
 
@@ -245,6 +268,9 @@ set_lacchain_permissioning() {
     "observer": "observer1"
   }' -p latamlink@active
 
+  echo 'Set Observer Node Group'
+  cleos push action eosio netsetgroup '["observer1", ["o1"]]' -p eosio@active
+
   echo 'Set Observer Node Info'
   cleos push action eosio setnodeinfo '{"node":"observer1", "info": "'`printf %q $(cat $WORK_DIR/utils/observer.json | tr -d "\r")`'"}' -p latamlink@active
 
@@ -257,9 +283,8 @@ set_lacchain_permissioning() {
   cleos get schedule
 
 echo 'Creating end user account for smart contract'
-
-cleos wallet import --private-key "5KawKbfwJk2VReKccdFynXwVcWZz7nVbsTQYwYYEuELsjFbKvUU";
-cleos push action eosio newaccount \
+cleos wallet import --private-key "5KawKbfwJk2VReKccdFynXwVcWZz7nVbsTQYwYYEuELsjFbKvUU"
+cleos -u http://writer:8080 push action eosio newaccount \
   '{
       "creator" : "latamlink",
       "name" : "eosmechanics",
@@ -276,21 +301,17 @@ cleos push action eosio newaccount \
   }' -p latamlink@active
 
 echo 'get account info for eosmechanics'
-cleos get account eosmechanics
+cleos -u http://writer:8080 get account eosmechanics
 
 echo 'get account info for latamlink'
-cleos get account latamlink
+cleos -u http://writer:8080 get account latamlink
 
-echo 'Deploy performance benchmark smart contract.'
-
-cleos -u http://writer:8080 set contract -j -d -s eosmechanics $WORK_DIR/eosmechanics/  -p latamlink@writer1 -p eosmechanics@active
-
- # Benchmark CPU  action on eosmechanics smart contract
-
+echo 'set eosmechanics smart contract code'
+cleos -u http://writer:8080 push transactions "$(echo "$(cleos push action -j -d writer run '{}' -p latamlink@writer --return-packed)" "$(cleos set code eosmechanics -j -d $WORK_DIR/eosmechanics/eosmechanics.wasm -p eosmechanics@active --return-packed)" | jq -s '.[0] += .[0]')"
 }
 
 run_bios() {
-  echo 'Initializing BIOS sequence...'
+  echo 'Initializing BIOS sequence...'  
   create_wallet
   create_system_accounts
   deploy_system_contracts
