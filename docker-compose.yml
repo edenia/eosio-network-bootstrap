@@ -16,6 +16,8 @@ services:
     depends_on:
       - "vault"
       - "wallet"
+    ports:
+      - 8888:8888
   validator1:
     build:
       target: local-stage

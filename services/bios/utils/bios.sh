@@ -41,7 +41,7 @@ create_system_accounts() {
     cleos wallet import --private-key $priv
 
     echo 'private key'
-    echo $priv
+    echo $priv > $account.key
 
     cleos create account eosio $account $pub
   done
@@ -173,12 +173,16 @@ set_lacchain_permissioning() {
   #E1 se abre a B1
   #O1 se abre a B2
 
+}
+
+set_full_partner_entity() {
   echo 'Create BIOS Partner Account'
 
   keys=($(cleos create key --to-console))
+  pub=${keys[5]}
   priv=${keys[2]}
 
-  echo 'secret' $priv
+  echo $priv > entity.key
 
   cleos wallet import --private-key $priv
 
@@ -271,15 +275,19 @@ set_lacchain_permissioning() {
 
   echo 'Check Nodes Table'
   cleos get table eosio eosio node
+}
 
+set_schedule() {
   echo 'Set schedule'
   cleos push action eosio setschedule '[["validator1"]]' -p eosio
-  sleep 2
+  sleep 1
   cleos get schedule
+}
 
+create_user_account() {
   echo 'Creating end user account for smart contract'
   cleos wallet import --private-key "5KawKbfwJk2VReKccdFynXwVcWZz7nVbsTQYwYYEuELsjFbKvUU"
-  cleos -u http://writer:8080 push action eosio newaccount \
+  cleos push action eosio newaccount \
     '{
       "creator" : "latamlink",
       "name" : "eosmechanics",
@@ -293,23 +301,69 @@ set_lacchain_permissioning() {
           "keys":[ {"weight":1,"key":"EOS75UWSDJ7XSsneG1YTuZuZKe3CQVucwnrLnyRPB2SDUAKuuqyRL"}],
           "accounts":[{"weight":1, "permission" :{"actor":"writer", "permission":"access"}}], "waits":[]
       },
-  }' -p latamlink@active
+  }' -p latamlink@writer
 
+  echo 'set RAM for eosmechanics'
+  cleos push action eosio setram \
+  '{
+    "entity":"latamlink",
+    "account":"eosmechanics",
+    "ram_bytes": 200000
+  }' -p latamlink@writer
+  
   echo 'get account info for eosmechanics'
-  cleos -u http://writer:8080 get account eosmechanics
+  cleos get account eosmechanics
 
   echo 'get account info for latamlink'
-  cleos -u http://writer:8080 get account latamlink
+  cleos get account latamlink
+}
 
+set_user_smart_contract() {
   echo 'set eosmechanics smart contract code'
-  cleos -u http://writer:8080 push transactions "$(echo "$(cleos push action -j -d writer run '{}' -p latamlink@writer --return-packed)" "$(cleos set code eosmechanics -j -d $WORK_DIR/eosmechanics/eosmechanics.wasm -p eosmechanics@active --return-packed)" | jq -s '.[0] += .[0]')"
+  cleos set contract eosmechanics -j -d -s $WORK_DIR/eosmechanics > tx2.json
+
+  echo 'writer auth'
+  cleos push action -j -d -s writer run '{}' > tx1.json -p latamlink@writer
+
+  echo 'merge actions'
+  jq -s '[.[].actions[]]' tx1.json tx2.json > tx3.json
+
+  echo 'merge transactiom'
+  jq '.actions = input' tx1.json tx3.json > tx4.json
+  
+  echo 'sign transactiom'
+  cleos push transaction tx4.json -p latamlink@writer -p eosmechanics@active
+}
+
+
+invoke_user_smart_contract() {
+  echo 'CPU action'
+  cleos push action eosmechanics cpu -j -d -s '{}' -p eosmechanics@active > cpu2.json
+
+  echo 'writer auth for CPU action'
+  cleos push action -j -d -s writer run '{}' -p latamlink@writer > cpu1.json 
+
+  echo 'merge actions'
+  jq -s '[.[].actions[]]' cpu1.json cpu2.json > cpu3.json
+
+  echo 'merge transactiom'
+  jq '.actions = input' cpu1.json cpu3.json > cpu4.json
+  
+  echo 'sign transactiom'
+  cleos push transaction cpu4.json -p latamlink@writer -p eosmechanics@active
 }
 
 run_bios() {
-  echo 'Initializing BIOS sequence...'
+  echo 'Initializing Local LAC-Chain Testnet !'
   create_wallet
   create_system_accounts
   deploy_system_contracts
   set_msig_privileged_account
   set_lacchain_permissioning
+  set_full_partner_entity
+  set_schedule
+  create_user_account
+  set_user_smart_contract
+  invoke_user_smart_contract
+  echo 'Done !'
 }

@@ -9,6 +9,8 @@ source $(dirname $0)/utils/bios.sh
 mkdir -p $CONFIG_DIR
 cp $WORK_DIR/config.ini $CONFIG_DIR/config.ini
 
+echo $EOS_PRIV_KEY > eosio.key
+
 pid=0;
 
 [[ -f /root/bios_ok ]] && bios_should_run=false || bios_should_run=true;
