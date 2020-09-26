@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-
 set -e
-NODE_URL='http://localhost:8888'
 
 unlock_lifebank_wallet() {
     echo 'Unlocking Wallet...'
@@ -15,7 +13,7 @@ create_lifebank_wallet() {
         awk 'FNR > 3 { print $1 }' |
         tr -d '"' \
             >/opt/application/secrets/lifebank_wallet_password.txt
-    cleos wallet open -n lifebank 
+    cleos wallet open -n lifebank
     unlock_lifebank_wallet
     cleos wallet import -n lifebank --private-key $EOS_PRIV_KEY
 }
@@ -23,13 +21,13 @@ create_lifebank_wallet() {
 create_lifebank_accounts() {
     echo 'Creating Lifebank Accounts...'
     lifebank_accounts=(
-            "consent2life"
-            "lifebankcode"
-            "lifebankcoin"
-            "bancoprueba1"
-            "sponsprueba1"
-            "donorprueba1"
-        )
+        "consent2life"
+        "lifebankcode"
+        "lifebankcoin"
+        "bancoprueba1"
+        "sponsprueba1"
+        "donorprueba1"
+    )
 
     for account in "${lifebank_accounts[@]}"; do
         echo "Creating lifebank account '$account'"
@@ -40,8 +38,8 @@ create_lifebank_accounts() {
 
         cleos wallet import -n lifebank --private-key $priv
         mkdir -p /opt/application/secrets
-        echo $pub > /opt/application/secrets/$account.pub
-        echo $priv > /opt/application/secrets/$account.priv 
+        echo $pub >/opt/application/secrets/$account.pub
+        echo $priv >/opt/application/secrets/$account.priv
         cleos system newaccount eosio \
             --transfer $account \
             $EOS_PUB_KEY \
@@ -54,7 +52,7 @@ create_lifebank_accounts() {
 deploy_lifebank_contracts() {
     echo 'Deploy Consent Contract'
     cleos set contract consent2life $WORK_DIR/lifebank/consent2life/ -p consent2life@active
-    sleep 2;
+    sleep 2
     echo 'Deploy Code Contract'
     cleos set contract lifebankcode $WORK_DIR/lifebank/lifebankcode/ -p lifebankcode@active
     code_pubkey=$(cat /opt/application/secrets/lifebankcode.pub)
@@ -100,7 +98,7 @@ deploy_lifebank_contracts() {
                 }
             ]
         }' owner -p lifebankcoin
-        cleos get account lifebankcoin
+    cleos get account lifebankcoin
 }
 
 consent() {
@@ -147,7 +145,7 @@ register_lifebank() {
 
 register_donor() {
     echo 'Register Donor'
-        cleos push action lifebankcode adddonor \
+    cleos push action lifebankcode adddonor \
     '{
         "account":"donorprueba1",
         "community_asset":"0 LIFE"
@@ -156,7 +154,7 @@ register_donor() {
 
 register_sponsor() {
     echo 'Register Sponsor'
-        cleos push action lifebankcode addsponsor \
+    cleos push action lifebankcode addsponsor \
     '{
         "account":"sponsprueba1",
         "sponsor_name":"Ferreteria McGyver",
@@ -175,29 +173,29 @@ register_sponsor() {
 test_token_lifecycle() {
     echo 'Issue token'
     cleos push action lifebankcoin issue \
-        '{
-            "lifebank":"bancoprueba1",
-            "to":"donorprueba1",
-            "memo":"por donar sangre"
-        }' -p bancoprueba1@active
+    '{
+        "lifebank":"bancoprueba1",
+        "to":"donorprueba1",
+        "memo":"por donar sangre"
+    }' -p bancoprueba1@active
 
     echo 'Donor transfers to sponsor'
     cleos push action lifebankcoin transfer \
-        '{
-            "from":"donorprueba1",
-            "to":"sponsprueba1",
-            "quantity":"2 LIFE",
-            "memo":"por darme un descuento"
-        }' -p donorprueba1@active
+    '{
+        "from":"donorprueba1",
+        "to":"sponsprueba1",
+        "quantity":"2 LIFE",
+        "memo":"por darme un descuento"
+    }' -p donorprueba1@active
 
     echo 'Sponsor transfer to lifebank'
     cleos push action lifebankcoin transfer \
-        '{
-            "from":"sponsprueba1",
-            "to":"bancoprueba1",
-            "quantity":"2 LIFE",
-            "memo":"para que sigan recibiendo donaciones"
-        }' -p sponsprueba1@active
+    '{
+        "from":"sponsprueba1",
+        "to":"bancoprueba1",
+        "quantity":"2 LIFE",
+        "memo":"para que sigan recibiendo donaciones"
+    }' -p sponsprueba1@active
 
     echo 'Lifebank transfer to lifebank'
     # TO DO : Setup a second LB and transfer
@@ -223,7 +221,7 @@ run_lifebank() {
     register_donor
     register_sponsor
     test_token_lifecycle
-    # TO DO: update_sponsor 
+    # TO DO: update_sponsor
     # TO DO: update_lifebank
     # TO DO: update_donor
     #clear_tables
