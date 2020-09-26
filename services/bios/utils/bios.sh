@@ -10,28 +10,35 @@ store_secret_on_vault() {
 }
 
 unlock_wallet() {
-  cleos wallet unlock --password $(cat /opt/application/secrets/wallet_password.txt) \
+  echo "Unlocking wallet..."
+  cleos wallet unlock -n bios --password $(cat /opt/application/secrets/bios_wallet_password.txt) \
     || echo "Wallet has already been unlocked..."
 }
 
 create_wallet() {
   mkdir -p /opt/application/secrets
-  cleos wallet create --to-console \
+  cleos wallet create -n bios --to-console \
     | awk 'FNR > 3 { print $1 }' \
     | tr -d '"' \
-    > /opt/application/secrets/wallet_password.txt;
-  cleos wallet open;
+    > /opt/application/secrets/bios_wallet_password.txt;
+  cat /opt/application/secrets/bios_wallet_password.txt;
+  cleos wallet open -n bios;
   unlock_wallet
-  cleos wallet import --private-key $EOS_PRIV_KEY;
+  cleos wallet import -n bios --private-key $EOS_PRIV_KEY;
 }
 
 create_system_accounts() {
   system_accounts=( \
-    "eosio.msig" \
     "eosio.token" \
-    "validator1" \
-    "validator2" \
-    "validator3" \
+    "eosio.bpay" \
+    "eosio.msig" \
+    "eosio.names" \
+    "eosio.ram" \
+    "eosio.ramfee" \
+    "eosio.saving" \
+    "eosio.stake" \
+    "eosio.vpay" \
+    "eosio.rex" \
   )
 
   for account in "${system_accounts[@]}"; do
@@ -41,7 +48,7 @@ create_system_accounts() {
     pub=${keys[5]}
     priv=${keys[2]}
 
-    cleos wallet import --private-key $priv
+    cleos wallet import -n bios --private-key $priv
 
     cleos create account eosio $account $pub;
   done
@@ -116,9 +123,9 @@ deploy_system_contracts() {
   set +e;
   result=1;
   while [ "$result" -ne "0" ]; do
-    echo "Setting latest eosio.bios contract...";
+    echo "Setting latest eosio.system contract...";
     cleos set contract eosio \
-      $EOSIO_CONTRACTS_DIRECTORY/eosio.bios/ \
+      $EOSIO_CONTRACTS_DIRECTORY/eosio.system/ \
       -p eosio \
       -x 1000;
     result=$?
@@ -127,56 +134,20 @@ deploy_system_contracts() {
   set -e;
 }
 
-set_msig_privileged_account() {
-  cleos push action eosio setpriv \
-    '["eosio.msig", 1]' -p eosio@active
+create_system_token() {
+  cleos push action eosio.token create \
+    '[ "eosio", "10000000000.0000 SYS" ]' -p eosio.token@active
+  
+  cleos push action eosio.token issue \
+    '[ "eosio", "1000000000.0000 SYS", "memo" ]' -p eosio@active
 }
 
-create_producer_accounts() {
-  # TODO: @danazkari this needs to be in json
-  # and in an env variable so that it can be configured
-  producer_accounts=( \
-    "baas1.uno" \
-    "baas1.dos" \
-    "baas1.tres" \
-    "baas1.cuatro" \
-    "baas1.cinco" \
-    "baas1.seis" \
-    "baas1.siete" \
-    "baas2.uno" \
-    "baas2.dos" \
-    "baas2.tres" \
-    "baas2.cuatro" \
-    "baas2.cinco" \
-    "baas2.seis" \
-    "baas2.siete" \
-    "baas3.uno" \
-    "baas3.dos" \
-    "baas3.tres" \
-    "baas3.cuatro" \
-    "baas3.cinco" \
-    "baas3.seis" \
-    "baas3.siete" \
-  );
-
-  for account in "${producer_accounts[@]}"; do
-    echo "Creating producer account '$account'";
-
-#     keys=($(cleos create key --to-console))
-#     pub=${keys[5]}
-#     priv=${keys[2]}
-
-#     cleos wallet import --private-key $priv;
-
-    cleos system newaccount eosio \
-      --transfer $account \
-      $EOS_PUB_KEY \
-      --stake-net "100000000.0000 SYS" \
-      --stake-cpu "100000000.0000 SYS" \
-      --buy-ram-kbytes 8192;
-
-    cleos system regproducer $account;
-  done
+init_system_account() {
+  cleos push action eosio setpriv \
+    '["eosio.msig", 1]' -p eosio@active
+    
+  cleos push action eosio init  \
+   '["0", "4,SYS"]' -p eosio@active
 }
 
 run_bios() {
@@ -184,6 +155,7 @@ run_bios() {
   create_wallet
   create_system_accounts
   deploy_system_contracts
-  set_msig_privileged_account
-  # create_producer_accounts
+  create_system_token
+  init_system_account
+  echo 'bios done!'
 }

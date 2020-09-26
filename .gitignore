@@ -1,6 +1,6 @@
 # Local .build directories
 .builds/
-
+.DS_Store
 # Crash log files
 crash.log
 

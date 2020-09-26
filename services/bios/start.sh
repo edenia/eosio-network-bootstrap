@@ -5,6 +5,7 @@ ulimit -n 65535
 ulimit -s 64000
 
 source $(dirname $0)/utils/bios.sh
+source $(dirname $0)/utils/lifebank.sh
 
 mkdir -p $CONFIG_DIR
 cp $WORK_DIR/config.ini $CONFIG_DIR/config.ini
@@ -63,10 +64,12 @@ if $bios_should_run; then
   sleep 5;
   run_bios &
   sleep 10
-  set_prods &
-  sleep 20
-  echo 'Bios sequence completed. Shutting down nodeos...'
-  term_handler &
+  run_lifebank &
+  #set_prods &
+  #sleep 20
+  #echo 'Bios sequence completed. Shutting down nodeos...'
+  #term_handler &
+  echo 'done!'
 fi
 
 while true
