@@ -41,7 +41,7 @@ create_system_accounts() {
     cleos wallet import --private-key $priv
 
     echo 'private key'
-    echo $priv > $account.key
+    echo $priv > /opt/application/secrets/$account.key
 
     cleos create account eosio $account $pub
   done
@@ -160,20 +160,16 @@ set_lacchain_permissioning() {
   cleos push action eosio setalimits '["writer", 10485760, 0, 0]' -p eosio
 
   echo 'Create Network Groups'
-  cleos push action eosio netaddgroup '["v1", []]' -p eosio@active
-  cleos push action eosio netaddgroup '["b1", []]' -p eosio@active
+  cleos push action eosio netaddgroup '["v1", ["validator1"]]' -p eosio@active
+  cleos push action eosio netaddgroup '["b1", ["boot1"]]' -p eosio@active
   cleos push action eosio netaddgroup '["b2", []]' -p eosio@active
-  cleos push action eosio netaddgroup '["w1", []]' -p eosio@active
-  cleos push action eosio netaddgroup '["o1", []]' -p eosio@active
-
-  #Tipos de conexiones:
-  #V1 se abre a V1, B1 y B2
-  #B1 se abre a V1, B1 y E1 (discutir si también a B2)
-  #B2 se abre a V1, B2 y O1 (discutir si también a B1)
-  #E1 se abre a B1
-  #O1 se abre a B2
-
+  cleos push action eosio netaddgroup '["w1", ["writer1"]]' -p eosio@active
+  cleos push action eosio netaddgroup '["o1", ["observer1"]]' -p eosio@active
+  
+  echo 'Inspect Groups Table'
+  cleos get table eosio eosio netgroup
 }
+
 
 set_full_partner_entity() {
   echo 'Create BIOS Partner Account'
@@ -182,7 +178,7 @@ set_full_partner_entity() {
   pub=${keys[5]}
   priv=${keys[2]}
 
-  echo $priv > entity.key
+  echo $priv > /opt/application/secrets/entity.key
 
   cleos wallet import --private-key $priv
 
@@ -196,7 +192,7 @@ set_full_partner_entity() {
   cleos push action eosio setentinfo '{"entity":"latamlink", "info": "'$(printf %q $(cat $WORK_DIR/utils/entity.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Inspect entity Table'
-  cleos get table eosio eosio node
+  cleos get table eosio eosio entity
 
   echo 'Register Validator Nodes'
   # NOTE: Was not able to add as permissioning commitee
@@ -217,7 +213,7 @@ set_full_partner_entity() {
   }' -p latamlink@active
 
   echo 'Set Validator Node Group'
-  cleos push action eosio netsetgroup '["validator1", ["v1"]]' -p eosio@active
+  cleos push action eosio netsetgroup '["validator1", ["b1","b2"]]' -p eosio@active
 
   echo 'Set Validator Node Info'
   cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'$(printf %q $(cat $WORK_DIR/utils/validator.json | tr -d "\r"))'"}' -p latamlink@active
@@ -230,7 +226,7 @@ set_full_partner_entity() {
   }' -p latamlink@active
 
   echo 'Set Boot Node Group'
-  cleos push action eosio netsetgroup '["boot1", ["b1"]]' -p eosio@active
+  cleos push action eosio netsetgroup '["boot1", ["v1","w1","o1"]]' -p eosio@active
 
   echo 'Set Boot Node Info'
   cleos push action eosio setnodeinfo '{"node":"boot1", "info": "'$(printf %q $(cat $WORK_DIR/utils/boot.json | tr -d "\r"))'"}' -p latamlink@active
@@ -252,7 +248,7 @@ set_full_partner_entity() {
   }' -p latamlink@active
 
   echo 'Set Writer Node Group'
-  cleos push action eosio netsetgroup '["writer1", ["w1"]]' -p eosio@active
+  cleos push action eosio netsetgroup '["writer1", ["b1"]]' -p eosio@active
 
   echo 'Set Writer Node Info'
   cleos push action eosio setnodeinfo '{"node":"writer1", "info": "'$(printf %q $(cat $WORK_DIR/utils/writer.json | tr -d "\r"))'"}' -p latamlink@active
@@ -268,7 +264,7 @@ set_full_partner_entity() {
   }' -p latamlink@active
 
   echo 'Set Observer Node Group'
-  cleos push action eosio netsetgroup '["observer1", ["o1"]]' -p eosio@active
+  cleos push action eosio netsetgroup '["observer1", ["b1"]]' -p eosio@active
 
   echo 'Set Observer Node Info'
   cleos push action eosio setnodeinfo '{"node":"observer1", "info": "'$(printf %q $(cat $WORK_DIR/utils/observer.json | tr -d "\r"))'"}' -p latamlink@active
@@ -319,38 +315,41 @@ create_user_account() {
 }
 
 set_user_smart_contract() {
+  mkdir -p /opt/application/stdout/eosmechanics
+  TEMP_DIR=/opt/application/stdout/eosmechanics
   echo 'set eosmechanics smart contract code'
-  cleos set contract eosmechanics -j -d -s $WORK_DIR/eosmechanics > tx2.json
+  cleos set contract eosmechanics -j -d -s $WORK_DIR/eosmechanics > $TEMP_DIR/tx2.json
 
   echo 'writer auth'
-  cleos push action -j -d -s writer run '{}' > tx1.json -p latamlink@writer
+  cleos push action -j -d -s writer run '{}' -p latamlink@writer > $TEMP_DIR/tx1.json 
 
   echo 'merge actions'
-  jq -s '[.[].actions[]]' tx1.json tx2.json > tx3.json
+  jq -s '[.[].actions[]]' $TEMP_DIR/tx1.json $TEMP_DIR/tx2.json > $TEMP_DIR/tx3.json
 
   echo 'merge transactiom'
-  jq '.actions = input' tx1.json tx3.json > tx4.json
+  jq '.actions = input' $TEMP_DIR/tx1.json $TEMP_DIR/tx3.json > $TEMP_DIR/tx4.json
   
   echo 'sign transactiom'
-  cleos push transaction tx4.json -p latamlink@writer -p eosmechanics@active
+  cleos push transaction $TEMP_DIR/tx4.json -p latamlink@writer -p eosmechanics@active
 }
 
 
 invoke_user_smart_contract() {
+  TEMP_DIR=/opt/application/stdout/eosmechanics
   echo 'CPU action'
-  cleos push action eosmechanics cpu -j -d -s '{}' -p eosmechanics@active > cpu2.json
+  cleos push action eosmechanics cpu -j -d -s '{}' -p eosmechanics@active > $TEMP_DIR/cpu2.json
 
   echo 'writer auth for CPU action'
-  cleos push action -j -d -s writer run '{}' -p latamlink@writer > cpu1.json 
+  cleos push action -j -d -s writer run '{}' -p latamlink@writer > $TEMP_DIR/cpu1.json 
 
   echo 'merge actions'
-  jq -s '[.[].actions[]]' cpu1.json cpu2.json > cpu3.json
+  jq -s '[.[].actions[]]' $TEMP_DIR/cpu1.json $TEMP_DIR/cpu2.json > $TEMP_DIR/cpu3.json
 
   echo 'merge transactiom'
-  jq '.actions = input' cpu1.json cpu3.json > cpu4.json
+  jq '.actions = input' $TEMP_DIR/cpu1.json $TEMP_DIR/cpu3.json > $TEMP_DIR/cpu4.json
   
   echo 'sign transactiom'
-  cleos push transaction cpu4.json -p latamlink@writer -p eosmechanics@active
+  cleos push transaction $TEMP_DIR/cpu4.json -p latamlink@writer -p eosmechanics@active
 }
 
 run_bios() {

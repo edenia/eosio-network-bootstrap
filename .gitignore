@@ -32,11 +32,15 @@ hosts
 protocol_features/
 secrets/
 
+# Temporary Files
+stdout/
+
 # vault
 vault_keys.json
+eosio.key
 
 # Local Mac files
-
 .DS_Store
+
 # Local env
 .env
