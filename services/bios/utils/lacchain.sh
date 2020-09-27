@@ -32,7 +32,7 @@ set_full_partner_entity() {
   cleos get account latamlink
 
   echo 'Set Entity Info'
-  cleos push action eosio setentinfo '{"entity":"latamlink", "info": "'$(printf %q $(cat $WORK_DIR/utils/entity.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setentinfo '{"entity":"latamlink", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/entity.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Inspect entity Table'
   cleos get table eosio eosio entity
@@ -59,7 +59,7 @@ set_full_partner_entity() {
   cleos push action eosio netsetgroup '["validator1", ["b1","b2"]]' -p eosio@active
 
   echo 'Set Validator Node Info'
-  cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'$(printf %q $(cat $WORK_DIR/utils/validator.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/validator.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Register Boot Node'
   cleos push action eosio addboot \
@@ -72,7 +72,7 @@ set_full_partner_entity() {
   cleos push action eosio netsetgroup '["boot1", ["v1","w1","o1"]]' -p eosio@active
 
   echo 'Set Boot Node Info'
-  cleos push action eosio setnodeinfo '{"node":"boot1", "info": "'$(printf %q $(cat $WORK_DIR/utils/boot.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"boot1", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/boot.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Register Writer'
   cleos push action eosio addwriter \
@@ -94,7 +94,7 @@ set_full_partner_entity() {
   cleos push action eosio netsetgroup '["writer1", ["b1"]]' -p eosio@active
 
   echo 'Set Writer Node Info'
-  cleos push action eosio setnodeinfo '{"node":"writer1", "info": "'$(printf %q $(cat $WORK_DIR/utils/writer.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"writer1", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/writer.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Show writer account'
   cleos get account writer
@@ -110,7 +110,7 @@ set_full_partner_entity() {
   cleos push action eosio netsetgroup '["observer1", ["b1"]]' -p eosio@active
 
   echo 'Set Observer Node Info'
-  cleos push action eosio setnodeinfo '{"node":"observer1", "info": "'$(printf %q $(cat $WORK_DIR/utils/observer.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"observer1", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/observer.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Check Nodes Table'
   cleos get table eosio eosio node

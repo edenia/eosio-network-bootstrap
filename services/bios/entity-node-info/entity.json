@@ -3,10 +3,13 @@
 	"organization_id": "3-101-090127",
 	"technical_contact": "Xavier Fernandez",
 	"business_contact": "Edgar Fernandez",
-	"email": "bp@eosio.cr",
+	"email": "latamlink@eosio.cr",
 	"website": "https://eoscostarica.io",
 	"code_of_conduct": "https://eoscostarica.io/en/transparency/#code_of_conduct",
 	"ownership_disclosure": "https://eoscostarica.io/en/transparency/#ownership_disclosure",
+	"github_user": "eoscostarica",
+	"chain_resources": ["https://dashboard.latamlink.io"],
+	"other_resources": ["https://guias.eoscostarica.io", "https://guides.eoscostarica.io"],
 	"branding": {
 		"logo_256": "https://eoscostarica.io/assets/eos-CostaRica-256x256.png",
 		"logo_1024": "https://eoscostarica.io/assets/eos-CostaRica-1024x1024.png",
@@ -19,7 +22,7 @@
 		"longitude": -84.078155
 	},
 	"social": {
-		"steemit": "eos-costarica",
+		"hive": "eos-costarica",
 		"twitter": "EOSCostaRica",
 		"youtube": "channel/UCvYinCH3O1iKpi-_dNfQAGQ",
 		"facebook": "costaricaeos",

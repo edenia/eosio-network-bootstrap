@@ -13,5 +13,6 @@
         "country": "CR",
         "latitude": 9.936377,
         "longitude": -84.078155
-    }
+    },
+    "writer_features": ["chain-api", "account-query", "dfuse"]
 }
