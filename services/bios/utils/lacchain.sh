@@ -1,9 +1,13 @@
+#!/usr/bin/env bash
+
 set_lacchain_permissioning() {
   echo 'Set Writer RAM'
   cleos push action eosio setalimits '["writer", 10485760, 0, 0]' -p eosio
 
   echo 'Create Network Groups'
   cleos push action eosio netaddgroup '["v1", ["validator1"]]' -p eosio@active
+  cleos push action eosio netaddgroup '["v1", ["validator2"]]' -p eosio@active
+  cleos push action eosio netaddgroup '["v1", ["validator3"]]' -p eosio@active
   cleos push action eosio netaddgroup '["b1", ["boot1"]]' -p eosio@active
   cleos push action eosio netaddgroup '["b2", []]' -p eosio@active
   cleos push action eosio netaddgroup '["w1", ["writer1"]]' -p eosio@active
@@ -22,6 +26,7 @@ set_full_partner_entity() {
   priv=${keys[2]}
 
   echo $priv > /opt/application/secrets/entity.key
+  echo $pub > /opt/application/secrets/entity.pub
 
   cleos wallet import --private-key $priv
 
@@ -54,12 +59,46 @@ set_full_partner_entity() {
       }
     ]
   }' -p latamlink@active
+   cleos push action eosio addvalidator \
+    '{
+    "entity": "latamlink",
+    "name": "validator2",
+    "validator_authority": [
+      "block_signing_authority_v0",
+      {
+        "threshold": 1,
+        "keys": [{
+          "key": '"$EOS_PUB_KEY"',
+          "weight": 1
+        }]
+      }
+    ]
+  }' -p latamlink@active
+   cleos push action eosio addvalidator \
+    '{
+    "entity": "latamlink",
+    "name": "validator3",
+    "validator_authority": [
+      "block_signing_authority_v0",
+      {
+        "threshold": 1,
+        "keys": [{
+          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
+          "weight": 1
+        }]
+      }
+    ]
+  }' -p latamlink@active
 
   echo 'Set Validator Node Group'
   cleos push action eosio netsetgroup '["validator1", ["b1","b2"]]' -p eosio@active
+  cleos push action eosio netsetgroup '["validator2", ["b1","b2"]]' -p eosio@active
+  cleos push action eosio netsetgroup '["validator3", ["b1","b2"]]' -p eosio@active
 
   echo 'Set Validator Node Info'
-  cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/validator.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"validator1", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/validator1.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"validator2", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/validator2.json | tr -d "\r"))'"}' -p latamlink@active
+  cleos push action eosio setnodeinfo '{"node":"validator3", "info": "'$(printf %q $(cat $WORK_DIR/entity-node-info/validator3.json | tr -d "\r"))'"}' -p latamlink@active
 
   echo 'Register Boot Node'
   cleos push action eosio addboot \
@@ -118,7 +157,7 @@ set_full_partner_entity() {
 
 set_schedule() {
   echo 'Set schedule'
-  cleos push action eosio setschedule '[["validator1"]]' -p eosio
+  cleos push action eosio setschedule '[["validator1","validator2","validator3"]]' -p eosio
   sleep 1
   cleos get schedule
 }
