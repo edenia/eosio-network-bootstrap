@@ -1,0 +1,16 @@
+{
+  "validator_keys": {
+    "peer_key": "EOS...",
+    "block_signing_key": "EOS..."
+  },
+  "validator_endpoints": {
+    "validator_p2p_out": "lacchain.eosio.cr:9876",
+    "validator_p2p_bidir": "lacchain.eosio.cr:9876"
+  },
+  "validator_location": {
+    "name": "San Jose",
+    "country": "CR",
+    "latitude": 9.936377,
+    "longitude": -84.078155
+  }
+}
