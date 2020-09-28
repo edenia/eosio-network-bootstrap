@@ -1,9 +1,10 @@
 -include .env
 
-VERSION ?= $(shell git ls-files -s kubernetes services Dockerfile | git hash-object --stdin)
+VERSION ?= $(shell git ls-files -s kubernetes configs Dockerfile | git hash-object --stdin)
 
 IMAGE_NAME=eosio-nodeos
-MAKE_ENV += VERSION IMAGE_NAME
+DOCKER_REGISTRY=eoscostarica506
+MAKE_ENV += VERSION IMAGE_NAME DOCKER_REGISTRY
 
 SHELL_EXPORT := $(foreach v,$(MAKE_ENV),$(v)='$($(v))')
 K8S_BUILD_DIR ?= ./build_k8s

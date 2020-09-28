@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wallet
+  labels:
+    version: ${VERSION}
+spec:
+  serviceName: wallet
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wallet
+      version: ${VERSION}
+  template:
+    metadata:
+      labels:
+        app: wallet
+        version: ${VERSION}
+    spec:
+      containers:
+        - name: nodeos
+          image: ${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION}
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: nodeos-secrets
+          env:
+            - name: DATA_DIR
+              value: /data/keosd
+            - name: CONFIG_DIR
+              value: /data/keosd/config
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 8888
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: data-directory
+              mountPath: /data/keosd
+            - name: scripts
+              mountPath: /opt/scripts
+      volumes:
+        - name: scripts
+          configMap:
+            name: wallet-config
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: data-directory
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 100Gi

@@ -12,7 +12,7 @@ RESET  := $(shell tput -Txterm sgr0)
 HELP_FUN = \
 	%help; \
 	while(<>) { push @{$$help{$$2 // 'targets'}}, [$$1, $$3] if /^([a-zA-Z\-]+)\s*:.*\#\#(?:@([a-zA-Z\-]+))?\s(.*)$$/ }; \
-	print "RACSA - AgilizaTED Blockchain Nodes ${VERSION} - Usage: make [target]\n\n"; \
+	print "EOSIO Network Bootstrap ${VERSION} - Usage: make [target]\n\n"; \
 	for (sort keys %help) { \
 	print "${WHITE}$$_:${RESET}\n"; \
 	for (@{$$help{$$_}}) { \
