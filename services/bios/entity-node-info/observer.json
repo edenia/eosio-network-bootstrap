@@ -1,6 +1,6 @@
 {
     "observer_keys":{
-        "peer_key": "EOS..."
+        "peer_keys": ["EOS..."]
     },
     "observer_endpoints":{
         "observer_api": "http://lacchain.eosio.cr",

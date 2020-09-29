@@ -1,6 +1,6 @@
 {
     "writer_keys":{
-        "peer_key": "EOS...",
+        "peer_keys": ["EOS..."],
         "account_key": "EOS..."
     },
     "writer_endpoints":{

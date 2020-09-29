@@ -1,6 +1,6 @@
 {
     "boot_keys":{
-        "peer_key": "EOS..."
+        "peer_keys": ["EOS..."]
     },
     "boot_endpoints":{
         "boot_p2p_out": "",
