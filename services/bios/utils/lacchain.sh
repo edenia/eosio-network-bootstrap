@@ -5,18 +5,15 @@ set_lacchain_permissioning() {
   cleos push action eosio setalimits '["writer", 10485760, 0, 0]' -p eosio
 
   echo 'Create Network Groups'
-  cleos push action eosio netaddgroup '["v1", ["validator1"]]' -p eosio@active
-  cleos push action eosio netaddgroup '["v1", ["validator2"]]' -p eosio@active
-  cleos push action eosio netaddgroup '["v1", ["validator3"]]' -p eosio@active
+  cleos push action eosio netaddgroup '["v1", ["validator1","validator2","validator3"]]' -p eosio@active
   cleos push action eosio netaddgroup '["b1", ["boot1"]]' -p eosio@active
   cleos push action eosio netaddgroup '["b2", []]' -p eosio@active
   cleos push action eosio netaddgroup '["w1", ["writer1"]]' -p eosio@active
   cleos push action eosio netaddgroup '["o1", ["observer1"]]' -p eosio@active
-  
+
   echo 'Inspect Groups Table'
   cleos get table eosio eosio netgroup
 }
-
 
 set_full_partner_entity() {
   echo 'Create BIOS Partner Account'
@@ -25,8 +22,8 @@ set_full_partner_entity() {
   pub=${keys[5]}
   priv=${keys[2]}
 
-  echo $priv > /opt/application/secrets/entity.key
-  echo $pub > /opt/application/secrets/entity.pub
+  echo $priv >/opt/application/secrets/entity.key
+  echo $pub >/opt/application/secrets/entity.pub
 
   cleos wallet import --private-key $priv
 
@@ -59,7 +56,7 @@ set_full_partner_entity() {
       }
     ]
   }' -p latamlink@active
-   cleos push action eosio addvalidator \
+  cleos push action eosio addvalidator \
     '{
     "entity": "latamlink",
     "name": "validator2",
@@ -74,7 +71,7 @@ set_full_partner_entity() {
       }
     ]
   }' -p latamlink@active
-   cleos push action eosio addvalidator \
+  cleos push action eosio addvalidator \
     '{
     "entity": "latamlink",
     "name": "validator3",
@@ -183,12 +180,12 @@ create_user_account() {
 
   echo 'set RAM for eosmechanics'
   cleos push action eosio setram \
-  '{
+    '{
     "entity":"latamlink",
     "account":"eosmechanics",
     "ram_bytes": 200000
   }' -p latamlink@writer
-  
+
   echo 'get account info for eosmechanics'
   cleos get account eosmechanics
 
@@ -200,47 +197,46 @@ set_user_smart_contract() {
   mkdir -p /opt/application/stdout/eosmechanics
   TEMP_DIR=/opt/application/stdout/eosmechanics
   echo 'set eosmechanics smart contract code'
-  cleos set contract eosmechanics -j -d -s $WORK_DIR/eosmechanics > $TEMP_DIR/tx2.json
+  cleos set contract eosmechanics -j -d -s $WORK_DIR/eosmechanics >$TEMP_DIR/tx2.json
 
   echo 'writer auth'
-  cleos push action -j -d -s writer run '{}' -p latamlink@writer > $TEMP_DIR/tx1.json 
+  cleos push action -j -d -s writer run '{}' -p latamlink@writer >$TEMP_DIR/tx1.json
 
   echo 'merge actions'
-  jq -s '[.[].actions[]]' $TEMP_DIR/tx1.json $TEMP_DIR/tx2.json > $TEMP_DIR/tx3.json
+  jq -s '[.[].actions[]]' $TEMP_DIR/tx1.json $TEMP_DIR/tx2.json >$TEMP_DIR/tx3.json
 
   echo 'merge transactiom'
-  jq '.actions = input' $TEMP_DIR/tx1.json $TEMP_DIR/tx3.json > $TEMP_DIR/tx4.json
-  
+  jq '.actions = input' $TEMP_DIR/tx1.json $TEMP_DIR/tx3.json >$TEMP_DIR/tx4.json
+
   echo 'sign transactiom'
   cleos push transaction $TEMP_DIR/tx4.json -p latamlink@writer -p eosmechanics@active
 }
 
-
 invoke_user_smart_contract() {
   TEMP_DIR=/opt/application/stdout/eosmechanics
   echo 'CPU action'
-  cleos push action eosmechanics cpu -j -d -s '{}' -p eosmechanics@active > $TEMP_DIR/cpu2.json
+  cleos push action eosmechanics cpu -j -d -s '{}' -p eosmechanics@active >$TEMP_DIR/cpu2.json
 
   echo 'writer auth for CPU action'
-  cleos push action -j -d -s writer run '{}' -p latamlink@writer > $TEMP_DIR/cpu1.json 
+  cleos push action -j -d -s writer run '{}' -p latamlink@writer >$TEMP_DIR/cpu1.json
 
   echo 'merge actions'
-  jq -s '[.[].actions[]]' $TEMP_DIR/cpu1.json $TEMP_DIR/cpu2.json > $TEMP_DIR/cpu3.json
+  jq -s '[.[].actions[]]' $TEMP_DIR/cpu1.json $TEMP_DIR/cpu2.json >$TEMP_DIR/cpu3.json
 
   echo 'merge transactiom'
-  jq '.actions = input' $TEMP_DIR/cpu1.json $TEMP_DIR/cpu3.json > $TEMP_DIR/cpu4.json
-  
+  jq '.actions = input' $TEMP_DIR/cpu1.json $TEMP_DIR/cpu3.json >$TEMP_DIR/cpu4.json
+
   echo 'sign transactiom'
   cleos push transaction $TEMP_DIR/cpu4.json -p latamlink@writer -p eosmechanics@active
 }
 
-run_lacchain(){
-    echo 'Initializing Local LAC-Chain Testnet !'
-    set_lacchain_permissioning
-    set_full_partner_entity
-    set_schedule
-    create_user_account
-    set_user_smart_contract
-    invoke_user_smart_contract
-    echo 'LAC Chain Setup Ready !'
+run_lacchain() {
+  echo 'Initializing Local LAC-Chain Testnet !'
+  set_lacchain_permissioning
+  set_full_partner_entity
+  set_schedule
+  create_user_account
+  set_user_smart_contract
+  invoke_user_smart_contract
+  echo 'LAC Chain Setup Ready !'
 }
