@@ -1,6 +1,6 @@
 {
   "initial_timestamp": "2020-08-11T04:20:00.000",
-  "initial_key": "EOS7GY6pQ86iWNS3DtS15gQ96ZNoyoNr9Ca7Y74mqUDmWunmbz9DP",
+  "initial_key": "${EOS_PUB_KEY}",
   "initial_configuration": {
     "max_block_net_usage": 1048576,
     "target_block_net_usage_pct": 1000,

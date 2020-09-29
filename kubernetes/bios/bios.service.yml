@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bios
+  labels:
+    version: ${VERSION}
+spec:
+  selector:
+    app: bios
+    version: ${VERSION}
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+    protocol: TCP
+  - port: 9876
+    targetPort: 9876
+    name: p2p
+    protocol: TCP

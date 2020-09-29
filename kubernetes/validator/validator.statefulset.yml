@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: validator${VALIDATOR_COUNT}
+  labels:
+    version: ${VERSION}
+spec:
+  serviceName: validator${VALIDATOR_COUNT}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validator${VALIDATOR_COUNT}
+      version: ${VERSION}
+  template:
+    metadata:
+      labels:
+        app: validator${VALIDATOR_COUNT}
+        version: ${VERSION}
+    spec:
+      initContainers:
+        - name: init-bios
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -zvw3 bios 9876; do echo waiting for bios:9876; sleep 5; done;']
+      containers:
+        - name: nodeos
+          image: ${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION}
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: nodeos-secrets
+          env:
+            - name: DATA_DIR
+              value: /data/nodeos
+            - name: CONFIG_DIR
+              value: /data/nodeos/config
+          ports:
+            - name: p2p
+              protocol: TCP
+              containerPort: 9876
+          livenessProbe:
+            tcpSocket:
+              port: p2p
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            tcpSocket:
+              port: p2p
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: data-directory
+              mountPath: /data/nodeos
+            - name: config
+              mountPath: /opt/config
+            - name: scripts
+              mountPath: /opt/scripts
+            - name: genesis
+              mountPath: /opt/genesis
+      volumes:
+        - name: scripts
+          configMap:
+            name: validator-scripts
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: validator${VALIDATOR_COUNT}-config
+        - name: genesis
+          configMap:
+            name: genesis-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data-directory
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 100Gi

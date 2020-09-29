@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e;
+set -ex;
 
 EOSIO_OLD_CONTRACTS_DIRECTORY=/opt/old-eosio.contracts/build/contracts
 EOSIO_CONTRACTS_DIRECTORY=/opt/eosio.contracts/build/contracts
@@ -37,13 +37,13 @@ create_system_accounts() {
   for account in "${system_accounts[@]}"; do
     echo "Creating $account account..."
 
-    keys=($(cleos create key --to-console))
-    pub=${keys[5]}
-    priv=${keys[2]}
+    # keys=($(cleos create key --to-console))
+    # pub=${keys[5]}
+    # priv=${keys[2]}
 
-    cleos wallet import --private-key $priv
+    # cleos wallet import --private-key $EOS_PRIV_KEY
 
-    cleos create account eosio $account $pub;
+    cleos create account eosio $account $EOS_PUB_KEY;
   done
 }
 

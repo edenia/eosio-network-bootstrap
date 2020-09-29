@@ -5,7 +5,7 @@ ulimit -n 65535
 ulimit -s 64000
 
 mkdir -p $CONFIG_DIR
-cp $WORK_DIR/config.ini $CONFIG_DIR/config.ini
+cp /opt/scripts/config.ini $CONFIG_DIR
 
 pid=0;
 
@@ -32,7 +32,10 @@ start_nodeos() {
 
 start_fresh_nodeos() {
   echo 'Starting new chain from genesis JSON'
-  $nodeos --delete-all-blocks --genesis-json $WORK_DIR/genesis.json &
+  $nodeos \
+    --delete-all-blocks \
+    --genesis-json /opt/genesis/genesis.json \
+    &
 }
 
 trap 'echo "Shutdown of EOSIO service...";kill ${!}; term_handler' 2 15;
