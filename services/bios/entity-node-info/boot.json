@@ -6,7 +6,7 @@
     },
     "boot_endpoints": {
         "boot_p2p_out": "",
-        "boot_p2p_bidir": "lacchain.eosio.cr:9876",
+        "boot_p2p_bidir": "lacchain.eosio.cr:9876"
     },
     "boot_location": {
         "name": "San Jose",
