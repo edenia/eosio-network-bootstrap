@@ -44,3 +44,5 @@ eosio.key
 
 # Local env
 .env
+node_modules
+modules/middleware

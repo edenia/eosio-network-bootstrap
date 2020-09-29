@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   bios:
@@ -114,3 +114,20 @@ services:
       # VAULT_LOCAL_CONFIG: ${VAULT_LOCAL_CONFIG}
       # VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
       # VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+  middleware:
+    container_name: middleware
+    image: node:14.2.0
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./modules/middleware:/app/node_modules
+      - type: bind
+        source: ../services/middleware
+        target: /app
+    working_dir: /app
+    command: bash -c "yarn && yarn watch"
+    environment:
+      MIDDLEWARE_EOS_API_ENDPOINT: "${MIDDLEWARE_EOS_API_ENDPOINT}"
+      MIDDLEWARE_EOS_API_CHAIN_ID: "${MIDDLEWARE_EOS_API_CHAIN_ID}"
+      MIDDLEWARE_EOS_WRITER_PUB_KEY: "${MIDDLEWARE_EOS_WRITER_PUB_KEY}"
+      MIDDLEWARE_EOS_WRITER_PRI_KEY: "${MIDDLEWARE_EOS_WRITER_PRI_KEY}"
