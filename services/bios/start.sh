@@ -63,7 +63,7 @@ pid="$(pidof nodeos)"
 if $bios_should_run; then
   sleep 5;
   run_bios &
-  sleep 10
+  sleep 20
   run_lifebank &
   #set_prods &
   #sleep 20
