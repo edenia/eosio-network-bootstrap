@@ -161,12 +161,17 @@ register_sponsor() {
         "covid_impact":"Los clientes le huyen al covid",
         "benefit_description":"10% off toilet seats",
         "website":"https://garberhardware.com/",
-        "telephone":"(212) 206 6996",
-        "bussines_type":"Construction",
+        "telephones":"[\"134123\", \"09090032\"]",
+        "business_type":"Construction",
         "schedule":"[{\"day\":\"Sunday\",\"open\":\"06:00\",\"close\":\"16:00\"},{\"day\":\"Friday\",\"open\":\"06:00\",\"close\":\"16:00\"},{\"day\":\"Saturday\",\"open\":\"06:00\",\"close\":\"16:00\"}]",
         "email":"garber@lifebank.io",
         "community_asset":"0 LIFE",
-        "location":"{\"latitude\":40.746434642148586,\"longitude\":-74.00169825211302}"
+        "location":"{\"latitude\":40.746434642148586,\"longitude\":-74.00169825211302}",
+        "address": "CQ San Carlos",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png",
+        "about": "Toilets for free only here",
+        "social_media_links": "[{\"name\":\"facebook\",\"url\":\"https://jsonformatter.curiousconcept.com\"},{\"name\":\"instragram\",\"url\":\"https://jsonformatter.curiousconcept.com\"},{\"name\":\"twitter\",\"url\":\"https://jsonformatter.curiousconcept.com\"}]",
+        "photos": "[\"https://static.hosteltur.com/app/public/uploads/img/articles/2020/04/10/M_110203_costa-rica.jpg\",\"https://www.larepublica.net/storage/images/2019/07/30/20190730091248.cr-3.jpg\"]"
     }' -p sponsprueba1@active
 }
 
