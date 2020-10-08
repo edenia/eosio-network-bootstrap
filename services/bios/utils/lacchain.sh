@@ -80,7 +80,7 @@ set_full_partner_entity() {
       {
         "threshold": 1,
         "keys": [{
-          "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
+          "key": '"$EOS_PUB_KEY"',
           "weight": 1
         }]
       }
