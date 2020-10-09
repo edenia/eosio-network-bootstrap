@@ -1,18 +1,18 @@
 {
-    "writer_keys":{
-        "peer_keys": ["EOS..."],
-        "account_key": "EOS..."
-    },
-    "writer_endpoints":{
-        "writer_api": "http://lacchain.eosio.cr",
-        "writer_ssl": "https://lacchain.eosio.cr",
-        "writer_p2p": "lacchain.eosio.cr:9876"
-    },
-    "writer_location": {
-        "name": "San Jose",
-        "country": "CR",
-        "latitude": 9.936377,
-        "longitude": -84.078155
-    },
-    "writer_features": ["chain-api", "account-query", "dfuse"]
+  "writer_keys": {
+    "peer_keys": ["EOS..."],
+    "account_key": "EOS..."
+  },
+  "writer_endpoints": {
+    "writer_api": "http://lacchain.eosio.cr",
+    "writer_ssl": "https://lacchain.eosio.cr",
+    "writer_p2p": "lacchain.eosio.cr:9876"
+  },
+  "writer_location": {
+    "name": "San Jose",
+    "country": "CR",
+    "latitude": 9.936377,
+    "longitude": -84.078155
+  },
+  "writer_features": ["chain-api", "account-query", "dfuse"]
 }

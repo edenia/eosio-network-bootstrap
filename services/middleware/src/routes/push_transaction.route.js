@@ -35,12 +35,17 @@ module.exports = {
       const orinalTransation = await api.deserializeTransactionWithActions(originalPayload.packed_trx)
       rulesUtil.validateTransction(orinalTransation)
       const localTransaction = await api.transact(orinalTransation, { broadcast: false })
-      const payload = {
-        compression: originalPayload.compression,
-        packed_context_free_data: originalPayload.packed_context_free_data,
-        packed_trx: originalPayload.packed_trx,
-        signatures: [...localTransaction.signatures, ...originalPayload.signatures]
+      let payload = originalPayload
+
+      if (localTransaction.signatures[0] !== originalPayload.signatures[0]) {
+        payload = {
+          compression: originalPayload.compression,
+          packed_context_free_data: originalPayload.packed_context_free_data,
+          packed_trx: originalPayload.packed_trx,
+          signatures: [...localTransaction.signatures, ...originalPayload.signatures]
+        }
       }
+
       const { data } = await axios.post(`${eosConfig.apiEndpoint}/v1/chain/push_transaction`, JSON.stringify(payload))
 
       return data

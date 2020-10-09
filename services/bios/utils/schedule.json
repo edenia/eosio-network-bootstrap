@@ -1,45 +1,49 @@
 {
   "schedule": [
-  {
-    "producer_name": "validator1",
-    "authority": [
-      "block_signing_authority_v0",
-      {
-        "threshold": 1,
-        "keys": [
+    {
+      "producer_name": "validator1",
+      "authority": [
+        "block_signing_authority_v0",
         {
-          "key": "EOS7GY6pQ86iWNS3DtS15gQ96ZNoyoNr9Ca7Y74mqUDmWunmbz9DP",
-          "weight": 1
-        }]
-      }
-    ]
-  },
-  {
-    "producer_name": "validator2",
-    "authority": [
-      "block_signing_authority_v0",
-      {
-        "threshold": 1,
-        "keys": [
+          "threshold": 1,
+          "keys": [
+            {
+              "key": "EOS5hLiffucJGRBfHACDGMa4h2gc5t43hJC3mJq5NqN9BfArhEcva",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "producer_name": "validator2",
+      "authority": [
+        "block_signing_authority_v0",
         {
-          "key": "EOS7GY6pQ86iWNS3DtS15gQ96ZNoyoNr9Ca7Y74mqUDmWunmbz9DP",
-          "weight": 1
-        }]
-      }
-    ]
-  },
-  {
-    "producer_name": "validator3",
-    "authority": [
-      "block_signing_authority_v0",
-      {
-        "threshold": 1,
-        "keys": [
+          "threshold": 1,
+          "keys": [
+            {
+              "key": "EOS7GY6pQ86iWNS3DtS15gQ96ZNoyoNr9Ca7Y74mqUDmWunmbz9DP",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "producer_name": "validator3",
+      "authority": [
+        "block_signing_authority_v0",
         {
-          "key": "EOS7GY6pQ86iWNS3DtS15gQ96ZNoyoNr9Ca7Y74mqUDmWunmbz9DP",
-          "weight": 1
-        }]
-      }
-    ]
-  }]
+          "threshold": 1,
+          "keys": [
+            {
+              "key": "EOS7GY6pQ86iWNS3DtS15gQ96ZNoyoNr9Ca7Y74mqUDmWunmbz9DP",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

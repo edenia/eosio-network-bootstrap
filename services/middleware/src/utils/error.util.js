@@ -3,7 +3,7 @@ class ValidationRuleError extends Error {
     super(...params)
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, CustomError)
+      Error.captureStackTrace(this, ValidationRuleError)
     }
 
     this.name = 'ValidationRuleError'
