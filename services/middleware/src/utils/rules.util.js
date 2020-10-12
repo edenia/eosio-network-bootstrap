@@ -22,7 +22,8 @@ const validateTransction = (transaction) => {
   }
 
   // first action must be from one writter and execute run action
-  if (firstTransacrtion.account !== 'writer' || firstTransacrtion.name !== 'run') {
+  const firstAction = transaction.actions[0]
+  if (firstAction.account !== 'writer' || firstAction.name !== 'run') {
     throw new ValidationRuleError({
       code: 500,
       message: 'Internal Service Error',
